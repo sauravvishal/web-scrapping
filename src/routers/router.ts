@@ -12,7 +12,13 @@ class MainRouter {
     }
 
     init() {
-        this.router.get("/scrap", this.controller.scrap);
+        this.router.post("/scrap/vestial", this.controller.vestialScrap);
+        this.router.get("/scrap/vestial", this.controller.getVestialUrls);
+
+        this.router.post("/scrap/thredup", this.controller.thredupScrap);
+        this.router.post("/scrap/lampoo", this.controller.lampooScrap);
+        this.router.post("/scrap/luxury", this.controller.luxuryScrap);
+        this.router.post("/scrap/thereal", this.controller.therealScrap);
 
         this.router.use('*', function (req: Request, res: Response) {
             sendResponse(res, 404, "Not Found.", null);

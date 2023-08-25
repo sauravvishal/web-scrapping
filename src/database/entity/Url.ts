@@ -1,18 +1,15 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
-export class User {
+export class Urls {
 
     @PrimaryGeneratedColumn()
     id!: number
 
     @Column()
-    firstName!: string
+    website_name!: string
 
-    @Column()
-    lastName!: string
-
-    @Column()
-    age!: number
+    @Column('text', { array: true, nullable: true })
+    urls!: string[];
 
 }

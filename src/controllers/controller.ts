@@ -9,6 +9,21 @@ export class Controller {
     service: any;
     constructor() { }
 
+    getAllUrls = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const urlRepository = AppDataSource.getRepository(Urls)
+            const [urls, count] = await urlRepository.findAndCount();
+            if (!count) return sendResponse(res, 404, "No data found.", null);
+            urls.map((elem: any) => {
+                elem['urls_count'] = elem.urls.length;
+                return elem;
+            });
+            sendResponse(res, 200, "scrapped successfully", urls);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
     vestialScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             let browserInstance = await startBrowser();
@@ -26,28 +41,18 @@ export class Controller {
         }
     }
 
-    getVestialUrls = async (req: Request, res: Response): Promise<any> => {
-        try {
-            const urlRepository = AppDataSource.getRepository(Urls)
-            const urls = await urlRepository.findOneBy({
-                website_name: "https://us.vestiairecollective.com/"
-            });
-
-            if (!urls) return sendResponse(res, 404, "No data found.", null);
-            sendResponse(res, 200, "scrapped successfully", urls);
-        } catch (error) {
-            console.log(error)
-            sendResponse(res, 403, "Something went wrong.", null);
-        }
-    }
-
     thredupScrap = async (req: Request, res: Response): Promise<any> => {
         try {
-            const { link } = req.body;
             let browserInstance = await startBrowser();
-            const vestiaireUrls = await scraperObject.thredupScraper(browserInstance);
+            const thredupUrls = await scraperObject.thredupScraper(browserInstance);
+            
+            const url = new Urls();
+            url.website_name = 'https://www.thredup.com';
+            url.urls = thredupUrls;
 
-            sendResponse(res, 200, "scrapped successfully", { vestiaireUrls });
+            const savedUrls = await AppDataSource.manager.save(url);
+
+            sendResponse(res, 200, "scrapped successfully", savedUrls);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }
@@ -56,16 +61,16 @@ export class Controller {
 
     lampooScrap = async (req: Request, res: Response): Promise<any> => {
         try {
-            const { link } = req.body;
             let browserInstance = await startBrowser();
-            const vestiaireUrls = await scraperObject.lampooScraper(browserInstance);
+            const lampooUrls = await scraperObject.lampooScraper(browserInstance);
 
-            // const url = new Urls()
-            // url.website_name = 'bobby the dog'
-            // petToSave.ownerName = 'mike'
-            // const savedPetOwner = await petRepository.save(petToSave)
+            const url = new Urls();
+            url.website_name = 'https://www.lampoo.com';
+            url.urls = lampooUrls;
 
-            sendResponse(res, 200, "scrapped successfully", { vestiaireUrls });
+            const savedUrls = await AppDataSource.manager.save(url);
+
+            sendResponse(res, 200, "scrapped successfully", savedUrls);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }
@@ -73,16 +78,16 @@ export class Controller {
 
     luxuryScrap = async (req: Request, res: Response): Promise<any> => {
         try {
-            const { link } = req.body;
             let browserInstance = await startBrowser();
-            const vestiaireUrls = await scraperObject.luxuryScraper(browserInstance);
+            const luxuryUrls = await scraperObject.luxuryScraper(browserInstance);
 
-            // const url = new Urls()
-            // url.website_name = 'bobby the dog'
-            // petToSave.ownerName = 'mike'
-            // const savedPetOwner = await petRepository.save(petToSave)
+            const url = new Urls();
+            url.website_name = 'https://www.therealreal.com';
+            url.urls = luxuryUrls;
 
-            sendResponse(res, 200, "scrapped successfully", { vestiaireUrls });
+            const savedUrls = await AppDataSource.manager.save(url);
+
+            sendResponse(res, 200, "scrapped successfully", savedUrls);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }
@@ -90,16 +95,16 @@ export class Controller {
 
     therealScrap = async (req: Request, res: Response): Promise<any> => {
         try {
-            const { link } = req.body;
             let browserInstance = await startBrowser();
-            const vestiaireUrls = await scraperObject.theRealScraper(browserInstance);
+            const realUrls = await scraperObject.theRealScraper(browserInstance);
 
-            // const url = new Urls()
-            // url.website_name = 'bobby the dog'
-            // petToSave.ownerName = 'mike'
-            // const savedPetOwner = await petRepository.save(petToSave)
+            const url = new Urls();
+            url.website_name = 'https://www.therealreal.com';
+            url.urls = realUrls;
 
-            sendResponse(res, 200, "scrapped successfully", { vestiaireUrls });
+            const savedUrls = await AppDataSource.manager.save(url);
+
+            sendResponse(res, 200, "scrapped successfully", savedUrls);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

@@ -12,9 +12,8 @@ class MainRouter {
     }
 
     init() {
+        this.router.get("/scrap/get-all", this.controller.getAllUrls);
         this.router.post("/scrap/vestial", this.controller.vestialScrap);
-        this.router.get("/scrap/vestial", this.controller.getVestialUrls);
-
         this.router.post("/scrap/thredup", this.controller.thredupScrap);
         this.router.post("/scrap/lampoo", this.controller.lampooScrap);
         this.router.post("/scrap/luxury", this.controller.luxuryScrap);

@@ -11,14 +11,17 @@ export class Controller {
 
     getAllUrls = async (req: Request, res: Response): Promise<any> => {
         try {
-            const urlRepository = AppDataSource.getRepository(Urls)
+            const urlRepository = AppDataSource.getRepository(Urls);
             const [urls, count] = await urlRepository.findAndCount();
             if (!count) return sendResponse(res, 404, "No data found.", null);
+            let total_count = 0;
             urls.map((elem: any) => {
                 elem['urls_count'] = elem.urls.length;
+                total_count += elem.urls.length;
                 return elem;
             });
-            sendResponse(res, 200, "scrapped successfully", urls);
+
+            sendResponse(res, 200, "scrapped successfully", { ...urls, total_count });
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }
@@ -45,7 +48,7 @@ export class Controller {
         try {
             let browserInstance = await startBrowser();
             const thredupUrls = await scraperObject.thredupScraper(browserInstance);
-            
+
             const url = new Urls();
             url.website_name = 'https://www.thredup.com';
             url.urls = thredupUrls;
@@ -105,6 +108,24 @@ export class Controller {
             const savedUrls = await AppDataSource.manager.save(url);
 
             sendResponse(res, 200, "scrapped successfully", savedUrls);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    vestialProductScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const urlRepository = AppDataSource.getRepository(Urls);
+            const urls = await urlRepository.findOneBy({ id: 1 });
+
+            let browserInstance = await startBrowser();
+
+            const products = await scraperObject.findVestaireProductDetails({ urls: urls?.urls, browserInstance });
+            
+            // let browserInstance = await startBrowser();
+            // const realUrls = await scraperObject.theRealScraper(browserInstance);
+
+            // sendResponse(res, 200, "scrapped successfully", savedUrls);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

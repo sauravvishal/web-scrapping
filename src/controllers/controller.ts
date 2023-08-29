@@ -3,8 +3,11 @@ import { sendResponse } from "../common/response";
 import { startBrowser } from "../services/browser";
 import { scraperObject } from "../services/pageScraper";
 import { Urls } from "../database/entity/Url";
+import { Product_urls } from "../database/entity/ProductUrls";
 import { AppDataSource } from "../database/data-source";
 import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct";
+
+import { LampooProductDetailsScraperObject } from "../services/lampooProduct";
 import { thredupProductDetailsScraperObject } from "../services/thredupProduct";
 
 export class Controller {
@@ -141,11 +144,53 @@ export class Controller {
             let browserInstance = await startBrowser();
 
             const products = await VestaireProductDetailsScraperObject.findVestaireProductDetails({ urls: urls?.urls, browserInstance });
-            
-            // let browserInstance = await startBrowser();
+
             // const realUrls = await scraperObject.theRealScraper(browserInstance);
 
             sendResponse(res, 200, "scrapped successfully", products);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    lampooProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const urlRepository = AppDataSource.getRepository(Urls);
+
+            const productRepository = AppDataSource.getRepository(Product_urls);
+
+            let urls = await urlRepository.findOneBy({ id: 4 });
+
+            const latestProductUrl = await productRepository
+                .createQueryBuilder('product_urls')
+                .orderBy('product_urls.id', 'DESC')
+                .limit(1)
+                .getOne();
+
+            let arr: any = [];
+
+            if (latestProductUrl) { // To filter out already inserted urls
+                const key = latestProductUrl?.url.split("https://www.lampoo.com/au/products/")[1].split("/")[1].split("-")[0];
+                const url = urls?.urls.find((item: any) => item.includes(key));
+                const index = urls?.urls.findIndex((item: any) => item == url);
+                arr = urls?.urls.slice(index);
+            }
+
+            if (!arr.length) {
+                arr = urls?.urls;
+            }
+
+            let browserInstance = await startBrowser();
+
+            const products = await LampooProductDetailsScraperObject.findLampooProductDetails({
+                urls: arr,
+                browserInstance,
+                lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
+            });
+            console.log(products.length)
+            const insertedData = await productRepository.insert(products);
+
+            sendResponse(res, 200, "scrapped successfully", insertedData);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

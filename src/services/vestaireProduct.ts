@@ -1,13 +1,24 @@
 export const VestaireProductDetailsScraperObject = {
     async findVestaireProductDetails({ urls, browserInstance }: any) {
         try {
+            const allUrls: any = [];
+            let page = await browserInstance.newPage();
             for (let url of urls) {
-                let page = await browserInstance.newPage();
                 console.log(`Navigating to ${url}...`);
-                await page.goto(url); // "https://www.vestiairecollective.com/women/"
+                await page.goto(url, { waitUntil: 'networkidle2' }); // "https://www.vestiairecollective.com/women/"
                 // await page.waitForNavigation();
                 // await page.click('#popin_tc_privacy_button_3');
                 await page.waitForSelector('.product-search_catalog__flexContainer__Dg0eL');
+
+                for (let i = 0; i < 25; i++) {
+
+                    let urls = await page.$$eval('.product-card_productCard__imageContainer__bYaVi', (links: any) => {
+                        links = links.map((el: any) => el.querySelector('a').href);
+                        return links;
+                    });
+                    allUrls.push(...urls);
+                    await page.click(`div.pagination_pagination__KrWss > .pagination-button_paginationButton__d33zo.pagination-button_paginationButton--arrow__h8iZ_.pagination-button_paginationButton--showText__pSbz1:last-child`);
+
                 const allUrls: any = [];
                 // for (let i = 0; i < 10; i++) {
                 //     let urls = await page.$$eval('.product-card_productCard__imageContainer__bYaVi', (links: any) => {
@@ -50,8 +61,10 @@ export const VestaireProductDetailsScraperObject = {
                 //     i++;
                 // }
 
+                    // await page.click(`div.product-search_catalog__pagination__R7beP > div > button:nth-child(5)`,{ delay: 200 });
+                }
 
-                // console.log(allUrls);
+                // console.log(allUrls.length);
 
                 await page.click('.product-card_productCard__imageContainer__bYaVi a');
                 let product: any = {};
@@ -76,10 +89,13 @@ export const VestaireProductDetailsScraperObject = {
                 product['favourite'] = await page.$eval(".product-like-button_like__button__38sAi", (el: any) => el.textContent);
                 product['date_listed'] = await page.$eval(".product-description-list_descriptionList__list__FJb05 > li:nth-child(1) > span:nth-child(2)", (el: any) => el.textContent);
 
+                // console.log({ product })
+                // browserInstance.close();
                 console.log({ product })
                 browserInstance.close();
                 break;
             }
+            return allUrls;
         } catch (error) {
             console.log(error)
         }

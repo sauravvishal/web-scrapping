@@ -4,6 +4,7 @@ import { startBrowser } from "../services/browser";
 import { scraperObject } from "../services/pageScraper";
 import { Urls } from "../database/entity/Url";
 import { AppDataSource } from "../database/data-source";
+import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct";
 
 export class Controller {
     service: any;
@@ -120,7 +121,7 @@ export class Controller {
 
             let browserInstance = await startBrowser();
 
-            const products = await scraperObject.findVestaireProductDetails({ urls: urls?.urls, browserInstance });
+            const products = await VestaireProductDetailsScraperObject.findVestaireProductDetails({ urls: urls?.urls, browserInstance });
             
             // let browserInstance = await startBrowser();
             // const realUrls = await scraperObject.theRealScraper(browserInstance);

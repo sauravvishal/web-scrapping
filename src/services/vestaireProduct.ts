@@ -19,47 +19,47 @@ export const VestaireProductDetailsScraperObject = {
                     allUrls.push(...urls);
                     await page.click(`div.pagination_pagination__KrWss > .pagination-button_paginationButton__d33zo.pagination-button_paginationButton--arrow__h8iZ_.pagination-button_paginationButton--showText__pSbz1:last-child`);
 
-                const allUrls: any = [];
-                // for (let i = 0; i < 10; i++) {
-                //     let urls = await page.$$eval('.product-card_productCard__imageContainer__bYaVi', (links: any) => {
-                //         links = links.map((el: any) => el.querySelector('a').href);
-                //         return links;
-                //     });
-                //     allUrls.push(...urls);
-                //     await page.click(`.pagination_pagination__KrWss button:nth-child(${i + 3})`);
-                // }
-                // let i = 0;
-                // while (i < 25) {
-                //     let urls = await page.$$eval('.product-card_productCard__imageContainer__bYaVi', (links: any) => {
-                //         links = links.map((el: any) => el.querySelector('a').href);
-                //         return links;
-                //     });
-                //     allUrls.push(...urls);
-                //     const nextPageLink = await page.$('.pagination-button_paginationButton--arrow__h8iZ_.pagination-button_paginationButton--showText__pSbz1');
-                //     if (!nextPageLink) {
-                //         break;
-                //     }
-                //     const isEllipsisPresent = await page.$('div.pagination_pagination__KrWss > span');
-                //     if (!isEllipsisPresent) {
-                //         await Promise.all([
-                //             page.waitForNavigation(),
-                //             nextPageLink.click(),
-                //         ]);
-                //     } else {
-                //         const nextPageNumber = await page.evaluate(() => {
-                //             const ellipsis = document.querySelector('div.pagination_pagination__KrWss > span');
-                //             const nextPageLink = ellipsis?.nextElementSibling as HTMLLinkElement;
-                //             return Number(nextPageLink.textContent);
-                //         });
-                //         await Promise.all([
-                //             page.waitForNavigation(),
-                //             nextPageLink.click(),
-                //             page.waitForSelector(`.pagination-button_paginationButton--arrow__h8iZ_.pagination-button_paginationButton--showText__pSbz1="${nextPageNumber}"]`)
-                //         ]);
-                //     }
-                //     console.log(i)
-                //     i++;
-                // }
+                    // const allUrls: any = [];
+                    // for (let i = 0; i < 10; i++) {
+                    //     let urls = await page.$$eval('.product-card_productCard__imageContainer__bYaVi', (links: any) => {
+                    //         links = links.map((el: any) => el.querySelector('a').href);
+                    //         return links;
+                    //     });
+                    //     allUrls.push(...urls);
+                    //     await page.click(`.pagination_pagination__KrWss button:nth-child(${i + 3})`);
+                    // }
+                    // let i = 0;
+                    // while (i < 25) {
+                    //     let urls = await page.$$eval('.product-card_productCard__imageContainer__bYaVi', (links: any) => {
+                    //         links = links.map((el: any) => el.querySelector('a').href);
+                    //         return links;
+                    //     });
+                    //     allUrls.push(...urls);
+                    //     const nextPageLink = await page.$('.pagination-button_paginationButton--arrow__h8iZ_.pagination-button_paginationButton--showText__pSbz1');
+                    //     if (!nextPageLink) {
+                    //         break;
+                    //     }
+                    //     const isEllipsisPresent = await page.$('div.pagination_pagination__KrWss > span');
+                    //     if (!isEllipsisPresent) {
+                    //         await Promise.all([
+                    //             page.waitForNavigation(),
+                    //             nextPageLink.click(),
+                    //         ]);
+                    //     } else {
+                    //         const nextPageNumber = await page.evaluate(() => {
+                    //             const ellipsis = document.querySelector('div.pagination_pagination__KrWss > span');
+                    //             const nextPageLink = ellipsis?.nextElementSibling as HTMLLinkElement;
+                    //             return Number(nextPageLink.textContent);
+                    //         });
+                    //         await Promise.all([
+                    //             page.waitForNavigation(),
+                    //             nextPageLink.click(),
+                    //             page.waitForSelector(`.pagination-button_paginationButton--arrow__h8iZ_.pagination-button_paginationButton--showText__pSbz1="${nextPageNumber}"]`)
+                    //         ]);
+                    //     }
+                    //     console.log(i)
+                    //     i++;
+                    // }
 
                     // await page.click(`div.product-search_catalog__pagination__R7beP > div > button:nth-child(5)`,{ delay: 200 });
                 }

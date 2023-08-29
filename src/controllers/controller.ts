@@ -5,6 +5,7 @@ import { scraperObject } from "../services/pageScraper";
 import { Urls } from "../database/entity/Url";
 import { AppDataSource } from "../database/data-source";
 import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct";
+import { thredupProductDetailsScraperObject } from "../services/thredupProduct";
 
 export class Controller {
     service: any;
@@ -57,6 +58,24 @@ export class Controller {
             const savedUrls = await AppDataSource.manager.save(url);
 
             sendResponse(res, 200, "scrapped successfully", savedUrls);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    thredUpProductScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const urlRepository = AppDataSource.getRepository(Urls);
+            const urls = await urlRepository.findOneBy({ id: 4 });
+
+            let browserInstance = await startBrowser();
+
+            const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ urls: urls?.urls, browserInstance });
+            
+            // let browserInstance = await startBrowser();
+            // const realUrls = await scraperObject.theRealScraper(browserInstance);
+
+            sendResponse(res, 200, "scrapped successfully", products);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

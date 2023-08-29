@@ -19,6 +19,7 @@ class MainRouter {
         this.router.post("/scrap/luxury", this.controller.luxuryScrap);
         this.router.post("/scrap/thereal", this.controller.therealScrap);
         this.router.post("/scrap/vestial-products", this.controller.vestialProductScrap);
+        this.router.post("/scrap/lampoo-products-urls", this.controller.lampooProductUrlScrap);
 
         this.router.use('*', function (req: Request, res: Response) {
             sendResponse(res, 404, "Not Found.", null);

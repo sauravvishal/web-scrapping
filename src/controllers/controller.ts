@@ -125,7 +125,7 @@ export class Controller {
             // let browserInstance = await startBrowser();
             // const realUrls = await scraperObject.theRealScraper(browserInstance);
 
-            // sendResponse(res, 200, "scrapped successfully", savedUrls);
+            sendResponse(res, 200, "scrapped successfully", products);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

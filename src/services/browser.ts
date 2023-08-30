@@ -7,6 +7,7 @@ export async function startBrowser() {
         browser = await puppeteer.launch({
             headless: false,
             defaultViewport: null,
+            // userDataDir: './myUserDataDir',
             args: ["--disable-setuid-sandbox"],
             'ignoreHTTPSErrors': true
         });

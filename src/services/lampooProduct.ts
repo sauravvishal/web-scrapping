@@ -8,7 +8,8 @@ export const LampooProductDetailsScraperObject = {
         let allUrls: any = [];
         try {
             let page = await browserInstance.newPage();
-            for (let url of urls) {
+            for (let [index, url] of urls.entries()) {
+                if (index > 0) lastPage = 0;
                 if (url == URL) continue;
 
                 console.log(`Navigating to ${url}...`);
@@ -52,6 +53,7 @@ export const LampooProductDetailsScraperObject = {
             await browserInstance.close();
             return allUrls;
         } catch (error) {
+            console.log({ error })
             await browserInstance.close();
             return allUrls;
         }

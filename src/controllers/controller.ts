@@ -158,7 +158,8 @@ export class Controller {
             const urlRepository = AppDataSource.getRepository(Urls);
 
             const productRepository = AppDataSource.getRepository(Product_urls);
-
+            // const productUrl = await productRepository.find();
+            // return sendResponse(res, 200, "scrapped successfully", productUrl);
             let urls = await urlRepository.findOneBy({ id: 4 });
 
             const latestProductUrl = await productRepository
@@ -187,10 +188,11 @@ export class Controller {
                 browserInstance,
                 lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
             });
-            console.log(products.length)
+
+            if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
             const insertedData = await productRepository.insert(products);
 
-            sendResponse(res, 200, "scrapped successfully", insertedData);
+            sendResponse(res, 200, "scrapped successfully", { total_scrapped: products.length, insertedData });
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

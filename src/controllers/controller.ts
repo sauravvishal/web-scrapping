@@ -10,6 +10,7 @@ import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct
 
 import { LampooProductDetailsScraperObject } from "../services/lampooProduct";
 import { thredupProductDetailsScraperObject } from "../services/thredupProduct";
+import { Any } from "typeorm";
 
 export class Controller {
     service: any;
@@ -50,7 +51,6 @@ export class Controller {
         try {
             let browserInstance = await startBrowser();
             const vestiaireUrls = await scraperObject.vestiaireScraper(browserInstance);
-
             const url = new Urls();
             url.website_name = 'https://us.vestiairecollective.com/';
             url.urls = vestiaireUrls;
@@ -97,7 +97,6 @@ export class Controller {
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
-
 
     lampooScrap = async (req: Request, res: Response): Promise<any> => {
         try {
@@ -245,9 +244,51 @@ export class Controller {
             const insertedData = await productRepository.insert(products);
 
             sendResponse(res, 200, "scrapped successfully", insertedData);
+
+    thredupProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const urlRepository = AppDataSource.getRepository(Urls);
+
+            const productRepository = AppDataSource.getRepository(Product_urls);
+            //const productUrl = await productRepository.find();
+            //return sendResponse(res, 200, "scrapped successfully", productUrl);
+            
+            let urls = await urlRepository.findOneBy({ id: 2 });
+
+            const latestProductUrl = await productRepository
+                .createQueryBuilder('product_urls')
+                .orderBy('product_urls.id', 'DESC')
+                .limit(1)
+                .getOne();
+
+            let arr: any = [];
+
+            if (latestProductUrl) { // To filter out already inserted urls
+
+                const key = latestProductUrl?.url.split("https://www.thredup.com/designer?department_tags=designer")[1].split("/")[1].split("-")[0];
+                const url = urls?.urls.find((item: any) => item.includes(key));
+
+                const index = urls?.urls.findIndex((item: any) => item == url);
+                arr = urls?.urls.slice(index);
+            }
+
+            if (!arr.length) {
+                arr = urls?.urls;
+            }
+
+            let browserInstance = await startBrowser();
+
+            const product: any = await thredupProductDetailsScraperObject.findThredupProductDetails({
+                urls: arr,
+                browserInstance
+            });
+
+            if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
+            const Data = await productRepository.insert(product);
+
+            sendResponse(res, 200, "scrapped successfully", { total_scrapped: product.length, Data });
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
-    
 }

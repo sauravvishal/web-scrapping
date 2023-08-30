@@ -38,7 +38,7 @@ export class Products {
     @Column({ nullable: true, default: null })
     Date_of_seen!: string;
 
-    @Column()
+    @Column({ nullable: true, default: null })
     Date_of_first_sold!: string;
 
     @Column({ nullable: true, default: null })

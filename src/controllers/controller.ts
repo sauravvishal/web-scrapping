@@ -4,6 +4,7 @@ import { startBrowser } from "../services/browser";
 import { scraperObject } from "../services/pageScraper";
 import { Urls } from "../database/entity/Url";
 import { Product_urls } from "../database/entity/ProductUrls";
+import { Products } from "../database/entity/Product";
 import { AppDataSource } from "../database/data-source";
 import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct";
 
@@ -26,7 +27,20 @@ export class Controller {
                 return elem;
             });
 
-            sendResponse(res, 200, "scrapped successfully", { ...urls, total_count });
+            sendResponse(res, 200, "scrapped successfully", { total_count, ...urls });
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    getAllProducts = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const productRepository = AppDataSource.getRepository(Products);
+            const [products, count] = await productRepository.findAndCount();
+            if (!count) return sendResponse(res, 404, "No data found.", null);
+            let total_count = products.reduce((sum: number, item: any) => ++sum, 0)
+
+            sendResponse(res, 200, "scrapped successfully", { total_count, ...products });
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }
@@ -74,7 +88,7 @@ export class Controller {
             let browserInstance = await startBrowser();
 
             const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ urls: urls?.urls, browserInstance });
-            
+
             // let browserInstance = await startBrowser();
             // const realUrls = await scraperObject.theRealScraper(browserInstance);
 
@@ -183,7 +197,7 @@ export class Controller {
 
             let browserInstance = await startBrowser();
 
-            const products = await LampooProductDetailsScraperObject.findLampooProductDetails({
+            const products = await LampooProductDetailsScraperObject.findLampooProductUrls({
                 urls: arr,
                 browserInstance,
                 lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
@@ -197,4 +211,43 @@ export class Controller {
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
+
+    lampooProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const productRepository = AppDataSource.getRepository(Products);
+            const productUrlRepository = AppDataSource.getRepository(Product_urls);
+
+            const data = await productRepository
+                .createQueryBuilder('products')
+                .select(['id', 'product_url_id'])
+                .orderBy('products.id', 'DESC')
+                .limit(1)
+                .getRawOne();
+
+            let urlsToScrap: any = [];
+
+            if (data) {
+                urlsToScrap = await productUrlRepository
+                    .createQueryBuilder('product_urls')
+                    .select(['id', 'url'])
+                    .where('product_urls.id > :id', { id: data.product_url_id })
+                    .getRawMany();
+            } else {
+                urlsToScrap = await productUrlRepository
+                    .createQueryBuilder('product_urls')
+                    .select(['id', 'url'])
+                    .getRawMany();
+            }
+
+            let browserInstance = await startBrowser();
+            const products = await LampooProductDetailsScraperObject.findLampooProductDetails({ urlsToScrap, browserInstance });
+
+            const insertedData = await productRepository.insert(products);
+
+            sendResponse(res, 200, "scrapped successfully", insertedData);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+    
 }

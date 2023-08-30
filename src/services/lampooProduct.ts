@@ -1,5 +1,3 @@
-import { startBrowser } from "./browser";
-
 const URL = "https://www.lampoo.com/au/designers/";
 const TO_SKIP_URL = "https://www.lampoo.com/au/account/orders-and-returns/";
 
@@ -21,7 +19,6 @@ export const LampooProductDetailsScraperObject = {
                 if (lastPage && lastPage < totalPage) {
                     startIndex = ++lastPage;
                 }
-
                 for (let i = startIndex; i <= +totalPage; i++) {
                     if (i > 1) {
                         if (url[url.length - 1] != "/") url += "/";

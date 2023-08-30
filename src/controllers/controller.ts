@@ -177,6 +177,7 @@ export class Controller {
 
             const latestProductUrl = await productRepository
                 .createQueryBuilder('product_urls')
+                .where('product_urls.url_id = :url_id', { url_id: 4 })
                 .orderBy('product_urls.id', 'DESC')
                 .limit(1)
                 .getOne();
@@ -261,15 +262,20 @@ export class Controller {
 
             const latestProductUrl = await productRepository
                 .createQueryBuilder('product_urls')
+                .where('product_urls.url_id = :url_id', { url_id: 2 })
                 .orderBy('product_urls.id', 'DESC')
                 .limit(1)
                 .getOne();
 
+
             let arr: any = [];
 
             if (latestProductUrl) { // To filter out already inserted urls
+                console.log(latestProductUrl);
+                console.log(latestProductUrl.url.split("https://www.thredup.com/designer?department_tags=designer"))
 
                 const key = latestProductUrl?.url.split("https://www.thredup.com/designer?department_tags=designer")[1].split("/")[1].split("-")[0];
+                
                 const url = urls?.urls.find((item: any) => item.includes(key));
 
                 const index = urls?.urls.findIndex((item: any) => item == url);
@@ -292,6 +298,7 @@ export class Controller {
 
             sendResponse(res, 200, "scrapped successfully", { total_scrapped: product.length, Data });
         } catch (error) {
+            console.log(error);
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }

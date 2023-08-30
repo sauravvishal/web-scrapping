@@ -244,6 +244,10 @@ export class Controller {
             const insertedData = await productRepository.insert(products);
 
             sendResponse(res, 200, "scrapped successfully", insertedData);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
 
     thredupProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
@@ -252,7 +256,7 @@ export class Controller {
             const productRepository = AppDataSource.getRepository(Product_urls);
             //const productUrl = await productRepository.find();
             //return sendResponse(res, 200, "scrapped successfully", productUrl);
-            
+
             let urls = await urlRepository.findOneBy({ id: 2 });
 
             const latestProductUrl = await productRepository

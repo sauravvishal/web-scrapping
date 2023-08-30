@@ -7,7 +7,7 @@ export const scraperObject = {
             console.log(`Navigating to ${url}...`);
             await page.goto(url);
             await page.waitForSelector('#__next');
-            let urls = await page.$$eval('ul > li', (links: any) => {
+            let urls = await page.$$eval('main > ul > li > ul > li', (links: any) => {
                 links = links.map((el: any) => el.querySelector('a').href);
                 return links;
             });

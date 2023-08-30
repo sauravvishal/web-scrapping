@@ -27,9 +27,20 @@ export const thredupProductDetailsScraperObject = {
                 // await page.waitForSelector("ul.jgiusFKudDUr6aL432nM");
 
 
+                const elements = await page.$x('/html/body/div[1]/div/main/div/div[2]/section/div[2]/div[2]/div/div/div[2]/ul/li');
+
+                if (elements.length > 0) {
+                  const textContent = await page.evaluate((el: any) => el.textContent, elements[0]);
+                  product['condition'] = textContent;
+                  console.log(product['condition']);
+                } else {
+                  console.log('Element not found.');
+                }
+                
+
+
                
                 const liElements = await page.$$('.qIe8uEwlaO9qd8EVVIlr > ul.jgiusFKudDUr6aL432nM');
-                console.log(liElements.length)
                 for (let i = 0; i < liElements.length; i++) {
                   const liElement = liElements[i];
                   const liContent = await liElement.evaluate((el: any) => el.textContent.trim());
@@ -38,12 +49,12 @@ export const thredupProductDetailsScraperObject = {
                 }
 
                 product['size'] = await page.$eval(".P9j6cGJ6kvC9bBgLk4pE", (el: any) => el.textContent);
-                // product['condition'] = await page.$eval(".product-details_productDetails__resume__characteristics__AkhuD > p:nth-child(2) > span", (el: any) => el.textContent);
+                
                 product['url'] = await page.evaluate(() => document.location.href);
                 product['favourite'] = await page.$eval(".XMAeTtijAYS07yZeY2vQ > div > .u-ml-1xs", (el: any) => el.textContent);
                 // product['date_listed'] = await page.$eval(".product-description-list_descriptionList__list__FJb05 > li:nth-child(1) > span:nth-child(2)", (el: any) => el.textContent);
 
-                console.log({ product })
+                console.log({ product });
                 // browserInstance.close();
                 break;
         } 

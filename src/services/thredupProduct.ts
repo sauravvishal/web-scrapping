@@ -32,7 +32,7 @@ export const thredupProductDetailsScraperObject = {
       let page = await browserInstance.newPage();
       for (let [index, url] of urls.entries()) {
         console.log(url);
-
+if (index === 0) continue;
         if (index > 0) lastPage = 0;
         if (TO_SKIP_URL.includes(url)) continue;
 
@@ -51,20 +51,21 @@ export const thredupProductDetailsScraperObject = {
         }
 
         for (let i = startIndex; i <= +totalPage; i++) {
-          const ifPopup = (await page.$("div.content > div.w_J3p7TTX1XZ71LeCrat.bJIW1yz2fvC7uVLGNW2a > div.oGz_rN1aCFDcFbEwgDkf > button")) || "";
-          if (ifPopup) await page.click("div.content > div.w_J3p7TTX1XZ71LeCrat.bJIW1yz2fvC7uVLGNW2a > div.oGz_rN1aCFDcFbEwgDkf > button");
-          const ifProductExists = (await page.$("div.Vb607oOokVxxYVL7SQwh.OPW0ubRZTuILGDFWrpz2")) || "";
-          if (!ifProductExists) break;
+          // const ifPopup = (await page.$("div.content > div.w_J3p7TTX1XZ71LeCrat.bJIW1yz2fvC7uVLGNW2a > div.oGz_rN1aCFDcFbEwgDkf > button")) || "";
+          // if (ifPopup) await page.click("div.content > div.w_J3p7TTX1XZ71LeCrat.bJIW1yz2fvC7uVLGNW2a > div.oGz_rN1aCFDcFbEwgDkf > button");
+          // const ifProductExists = (await page.$("div.Vb607oOokVxxYVL7SQwh.OPW0ubRZTuILGDFWrpz2")) || "";
+          // if (!ifProductExists) break;
+
           await page.waitForSelector("div.Vb607oOokVxxYVL7SQwh.OPW0ubRZTuILGDFWrpz2")
           let urls = await page.$$eval('div.Vb607oOokVxxYVL7SQwh.OPW0ubRZTuILGDFWrpz2', (links: any) => {
             links = links.map((el: any) => el.querySelector('a').href);
             return links;
           });
-
+         
           const urlArr = urls.map((item: any) => {
             const regex = new RegExp("/", "g");
             if (item != TO_SKIP_URL) {
-              const website_name = item.split("https://www.thredup.com/product/")[1].replace(regex, "-");
+              const website_name = item.split("https://www.thredup.com/product/")[1].split("/")[0].replace(regex, "-");
               return {
                 product_name: website_name.slice(0, website_name.length - 1),
                 url: item,
@@ -76,9 +77,11 @@ export const thredupProductDetailsScraperObject = {
 
           allUrls.push(...urlArr);
           console.log(i);
-          
+          //await page.waitfornavigation();
           const ifNextPage = (await page.$("div.u-flex.u-justify-between.u-py-3xs.u-relative.u-items-start > div.u-flex.u-items-center.u-space-x-1x > button:last-child")) || "";
           if (ifNextPage) await page.click("div.u-flex.u-justify-between.u-py-3xs.u-relative.u-items-start > div.u-flex.u-items-center.u-space-x-1x > button:last-child");
+          
+          
           // if (i == 2) break; 
         }
         if (index == 10) break;

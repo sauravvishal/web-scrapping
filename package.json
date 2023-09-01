@@ -21,6 +21,8 @@
     "node-dependency-injection": "^3.1.0",
     "pg": "^8.11.3",
     "puppeteer": "^21.1.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.17"
   }

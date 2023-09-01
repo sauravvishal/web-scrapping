@@ -270,7 +270,7 @@ export class Controller {
 
             //  if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
             //  const Data = await productRepository.insert(product);
-            return sendResponse(res, 200, "scrapped successfully", {product, length: product.length});
+            return sendResponse(res, 200, "scrapped successfully", {product, length: product.length, latestProductUrl});
             //sendResponse(res, 200, "scrapped successfully", null);
         } catch (error) {
             console.log(error);

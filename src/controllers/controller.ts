@@ -237,17 +237,21 @@ export class Controller {
             const urlRepository = AppDataSource.getRepository(Urls);
 
             const productRepository = AppDataSource.getRepository(Product_urls);
-            //const productUrl = await productRepository.find();
-            //return sendResponse(res, 200, "scrapped successfully", productUrl);
+
              let urls = await urlRepository.findOneBy({ id: 2 });
+
+            let index = urls?.urls.findIndex(i => i === "https://www.thredup.com/brands/designer/other") || 0;
+            urls?.urls.splice(0, ++index);
+
             const latestProductUrl = await productRepository
                 .createQueryBuilder('product_urls')
                 .where('product_urls.url_id = :url_id', { url_id: 2 })
                 .orderBy('product_urls.id', 'DESC')
                 .limit(1)
                 .getOne();
-// https://www.thredup.com/product/ women - bjorndal - brown - muleclog/
+
             let arr: any = [];
+
             if (latestProductUrl) { // To filter out already inserted urls
                 const key = latestProductUrl?.url.split("https://www.thredup.com/product")[1].split("-")[1];
                 const url = urls?.urls.find((item: any) => item.includes(key));
@@ -266,7 +270,7 @@ export class Controller {
 
             //  if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
             //  const Data = await productRepository.insert(product);
-             return sendResponse(res, 200, "scrapped successfully", latestProductUrl);
+            return sendResponse(res, 200, "scrapped successfully", {product, length: product.length});
             //sendResponse(res, 200, "scrapped successfully", null);
         } catch (error) {
             console.log(error);

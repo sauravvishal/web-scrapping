@@ -24,11 +24,11 @@ export const LampooProductDetailsScraperObject = {
                     startIndex = ++lastPage;
                 }
                 for (let i = startIndex; i <= +totalPage; i++) {
-                    if (i > 1) {
-                        if (url[url.length - 1] != "/") url += "/";
-                        await page.goto(`${url}?p=${i}`);
-                        await page.waitForNavigation();
-                    }
+                    // if (i > 1) {
+                    //     if (url[url.length - 1] != "/") url += "/";
+                    //     await page.goto(`${url}?p=${i}`);
+                    //     await page.waitForNavigation();
+                    // }
 
                     let urls = await page.$$eval('div.group', (links: any) => {
                         links = links.map((el: any) => el.querySelector('a').href);
@@ -49,7 +49,11 @@ export const LampooProductDetailsScraperObject = {
                     }).filter((i: any) => i);
 
                     allUrls.push(...urlArr);
+                    const ifNextPage = (await page.$("#__next > main > div.w-full.mx-auto > div:nth-child(4) > div > button:nth-child(3) > div")) || "";
+                    if (ifNextPage) await page.click("#__next > main > div.w-full.mx-auto > div:nth-child(4) > div > button:nth-child(3) > div");
                 }
+                console.log({index})
+                if (index == 100) break;
             }
 
             await browserInstance.close();
@@ -111,8 +115,9 @@ export const LampooProductDetailsScraperObject = {
 
                 products.push(product);
                 
-                // ++count;
-                // if (count === 2) break;
+                ++count;
+                console.log(count)
+                if (count === 50) break;
             }
 
             await browserInstance.close();

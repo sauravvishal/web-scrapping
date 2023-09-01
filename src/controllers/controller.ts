@@ -153,7 +153,7 @@ export class Controller {
 
             const productRepository = AppDataSource.getRepository(Product_urls);
             // const productUrl = await productRepository.find();
-            // return sendResponse(res, 200, "scrapped successfully", productUrl);
+            // return sendResponse(res, 200, "scrapped successfully", { count: productUrl.length});
             let urls = await urlRepository.findOneBy({ id: 4 });
 
             const latestProductUrl = await productRepository
@@ -189,6 +189,7 @@ export class Controller {
 
             sendResponse(res, 200, "scrapped successfully", { total_scrapped: products.length, insertedData });
         } catch (error) {
+            console.log(error)
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
@@ -225,7 +226,7 @@ export class Controller {
 
             const insertedData = await productRepository.insert(products);
 
-            sendResponse(res, 200, "scrapped successfully", insertedData);
+            sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

@@ -80,24 +80,6 @@ export class Controller {
         }
     }
 
-    thredUpProductScrap = async (req: Request, res: Response): Promise<any> => {
-        try {
-            const urlRepository = AppDataSource.getRepository(Urls);
-            const urls = await urlRepository.findOneBy({ id: 4 });
-
-            let browserInstance = await startBrowser();
-
-            const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ urls: urls?.urls, browserInstance });
-
-            // let browserInstance = await startBrowser();
-            // const realUrls = await scraperObject.theRealScraper(browserInstance);
-
-            sendResponse(res, 200, "scrapped successfully", products);
-        } catch (error) {
-            sendResponse(res, 403, "Something went wrong.", null);
-        }
-    }
-
     lampooScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             let browserInstance = await startBrowser();
@@ -257,46 +239,37 @@ export class Controller {
             const productRepository = AppDataSource.getRepository(Product_urls);
             //const productUrl = await productRepository.find();
             //return sendResponse(res, 200, "scrapped successfully", productUrl);
+             let urls = await urlRepository.findOneBy({ id: 2 });
+            // const latestProductUrl = await productRepository
+            //     .createQueryBuilder('product_urls')
+            //     .where('product_urls.url_id = :url_id', { url_id: 2 })
+            //     .orderBy('product_urls.id', 'DESC')
+            //     .limit(1)
+            //     .getOne();
 
-            let urls = await urlRepository.findOneBy({ id: 2 });
-
-            const latestProductUrl = await productRepository
-                .createQueryBuilder('product_urls')
-                .where('product_urls.url_id = :url_id', { url_id: 2 })
-                .orderBy('product_urls.id', 'DESC')
-                .limit(1)
-                .getOne();
-
-
-            let arr: any = [];
-
-            if (latestProductUrl) { // To filter out already inserted urls
-                console.log(latestProductUrl);
-                console.log(latestProductUrl.url.split("https://www.thredup.com/designer?department_tags=designer"))
-
-                const key = latestProductUrl?.url.split("https://www.thredup.com/designer?department_tags=designer")[1].split("/")[1].split("-")[0];
-                
-                const url = urls?.urls.find((item: any) => item.includes(key));
-
-                const index = urls?.urls.findIndex((item: any) => item == url);
-                arr = urls?.urls.slice(index);
-            }
-
-            if (!arr.length) {
-                arr = urls?.urls;
-            }
-
+            // let arr: any = [];
+            // if (latestProductUrl) { // To filter out already inserted urls
+            //     console.log(latestProductUrl);
+            //     console.log(latestProductUrl.url.split("https://www.thredup.com/product"))
+            //     const key = latestProductUrl?.url.split("https://www.thredup.com/product")[1].split("/")[1].split("-")[0];
+            //     const url = urls?.urls.find((item: any) => item.includes(key));
+            //     const index = urls?.urls.findIndex((item: any) => item == url);
+            //     arr = urls?.urls.slice(index);
+            // }
+            // if (!arr.length) {
+            //     arr = urls?.urls;
+            // }
             let browserInstance = await startBrowser();
-
-            const product: any = await thredupProductDetailsScraperObject.findThredupProductDetails({
-                urls: arr,
-                browserInstance
+            const product: any = await thredupProductDetailsScraperObject.findThredupProductUrls({
+                // urls: arr,
+                // browserInstance
+                urls: urls?.urls, browserInstance 
             });
 
-            if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
-            const Data = await productRepository.insert(product);
-
-            sendResponse(res, 200, "scrapped successfully", { total_scrapped: product.length, Data });
+            // if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
+            // //const Data = await productRepository.insert(product);
+            // return sendResponse(res, 200, "scrapped successfully", latestProductUrl);
+            sendResponse(res, 200, "scrapped successfully", null);
         } catch (error) {
             console.log(error);
             sendResponse(res, 403, "Something went wrong.", null);

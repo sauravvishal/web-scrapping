@@ -1,0 +1,34 @@
+
+
+let urls = await page.$$eval('div.Vb607oOokVxxYVL7SQwh', (links: any) => {
+    links = links.map((el: any) => el.querySelector('a').href);
+    return links;
+  });
+
+  https://www.thredup.com/product/
+
+  //await page.click('div.Vb607oOokVxxYVL7SQwh');
+  //     let product: any = {};
+  //     await page.waitForSelector(".wAhTkKjWOmWyIy2F13MZ");
+  //     product['brand_name'] = await page.$eval(".LarhPVhimXuUmTnRJDlM > div > a", (el: any) => el.textContent);
+  //     product['name'] = await page.$eval(".wc1Wg5BbXVFBe4MHxY3r", (el: any) => el.textContent);
+  //     product['original_price'] = await page.$eval("div > span.u-text-20.u-font-bold.u-mr-1xs", (el: any) => el.textContent);
+  //     const current_price = (await page.$(".u-flex.u-items-center > span:nth-child(2)")) || "";
+  //     if (current_price) {
+  //       product.current_price = await current_price.evaluate((el: any) => el.textContent);
+  //     } else {
+  //       product.current_price = product.original_price;
+  //     }
+  //     product['size'] = await page.$eval(".P9j6cGJ6kvC9bBgLk4pE", (el: any) => el.textContent);
+  //     product['size'] = product['size'].replace("sizing guide", "");
+  //     product['condition'] = await page.$eval("section > div:nth-child(2) > div:nth-child(2) > div > div > div:nth-child(2) > ul > li", (el: any) => el.textContent);
+  //     product['description'] = await page.$eval(".jgiusFKudDUr6aL432nM", (el: any) => el.textContent);
+  //     product['url'] = await page.evaluate(() => document.location.href);
+  //     product['favourite'] = await page.$eval(".p.u-flex > button > div > span.u-ml-1xs ", (el: any) => el.textContent);
+  //     //product['date_listed'] = await page.$eval(".product-description-list_descriptionList__list__FJb05 > li:nth-child(1) > span:nth-child(2)", (el: any) => el.textContent);
+  //     console.log({ product })
+  //     //console.log(allUrls.length)
+  //     browserInstance.close();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }

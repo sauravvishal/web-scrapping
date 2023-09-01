@@ -10,7 +10,6 @@ import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct
 
 import { LampooProductDetailsScraperObject } from "../services/lampooProduct";
 import { thredupProductDetailsScraperObject } from "../services/thredupProduct";
-import { Any } from "typeorm";
 
 export class Controller {
     service: any;

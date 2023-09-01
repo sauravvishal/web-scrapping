@@ -13,7 +13,11 @@ export const LampooProductDetailsScraperObject = {
                 console.log(`Navigating to ${url}...`);
                 await page.goto(url, { waitUntil: 'networkidle0' });
 
-                const totalPage = await page.$eval("div.w-full.mx-auto > div:nth-child(4) > div > div > span:nth-child(3)", (el: any) => el.textContent);
+                let totalPage = 1;
+                const pageCount = (await page.$("div.w-full.mx-auto > div:nth-child(4) > div > div > span:nth-child(3)")) || "";
+                if (pageCount) {
+                    totalPage = await pageCount.evaluate((el: any) => el.textContent);
+                }
 
                 let startIndex = 1;
                 if (lastPage && lastPage < totalPage) {

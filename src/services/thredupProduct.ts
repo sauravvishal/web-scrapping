@@ -31,8 +31,8 @@ export const thredupProductDetailsScraperObject = {
     try {
       let page = await browserInstance.newPage();
       for (let [index, url] of urls.entries()) {
-        console.log(url);
-if (index === 0) continue;
+
+        if (index === 0) continue;
         if (index > 0) lastPage = 0;
         if (TO_SKIP_URL.includes(url)) continue;
 
@@ -61,7 +61,7 @@ if (index === 0) continue;
             links = links.map((el: any) => el.querySelector('a').href);
             return links;
           });
-         
+
           const urlArr = urls.map((item: any) => {
             const regex = new RegExp("/", "g");
             if (item != TO_SKIP_URL) {
@@ -76,12 +76,11 @@ if (index === 0) continue;
           }).filter((i: any) => i);
 
           allUrls.push(...urlArr);
-          console.log(i);
           //await page.waitfornavigation();
           const ifNextPage = (await page.$("div.u-flex.u-justify-between.u-py-3xs.u-relative.u-items-start > div.u-flex.u-items-center.u-space-x-1x > button:last-child")) || "";
           if (ifNextPage) await page.click("div.u-flex.u-justify-between.u-py-3xs.u-relative.u-items-start > div.u-flex.u-items-center.u-space-x-1x > button:last-child");
-          
-          
+
+
           // if (i == 2) break; 
         }
         if (index == 10) break;
@@ -95,67 +94,73 @@ if (index === 0) continue;
     }
   },
 
-  // async findLampooProductDetails({ urlsToScrap, browserInstance }: any) {
-  //     const products = [];
-  //     try {
-  //         let count = 0;
-  //         let page = await browserInstance.newPage();
-  //         for (let item of urlsToScrap) {
-  //             console.log(`Navigating to ${item.url}...`);
+  async findThredupProductDetails({ urlsToScrap, browserInstance }: any) {
+    //const products = [];
+    try {
+      //let item = "https://www.thredup.com/designer/alice-olivia?department_tags=designer&brand_name_tags=Alice%20%2B%20Olivia";
+      let count = 0;
+      let page = await browserInstance.newPage();
+      let item = "https://www.thredup.com/designer/alice-olivia?department_tags=designer&brand_name_tags=Alice%20%2B%20Olivia";
+      console.log(`Navigating to ${item}...`);
+      //for (let item of urlsToScrap) {
+      await page.goto(item, { waitUntil: "networkidle0" });
 
-  //             await page.goto(item.url, { waitUntil: "networkidle0" });
-  //             const product: any = {};
+      await page.waitForSelector(".FdAipMCgszGk929RNGuM");
+      await page.click('div.Vb607oOokVxxYVL7SQwh > a');
+      const product: any = {};
 
-  //             const ifPdpBtn = (await page.$("#pdp-buttons")) || "";
-  //             if (!ifPdpBtn) continue;
+      // const ifPdpBtn = (await page.$("#pdp-buttons")) || "";
+      // if (!ifPdpBtn) continue;
 
-  //             await page.waitForSelector("#pdp-buttons");
 
-  //             product["product_url_id"] = item.id;
-  //             product["brand_name"] = await page.$eval("#pdp-buttons > div.flex.flex-col.pt-2 > div > a > p", (el: any) => el.textContent);
-  //             product["product_name"] = await page.$eval("#pdp-buttons > div.flex.flex-col.pt-2 > div > h1", (el: any) => el.textContent);
-  //             product["original_price"] = await page.$eval("#pdp-buttons > div.flex.flex-col.pt-2 > div > div.flex.justify-end.text-xl > div > span:nth-child(1)", (el: any) => el.textContent);
-  //             const currentPrice = (await page.$("#pdp-buttons > div.flex.flex-col.pt-2 > div > div.flex.justify-end.text-xl > div > span:nth-child(2)")) || "";
-  //             if (currentPrice) {
-  //                 product["current_price"] = await currentPrice.evaluate((el: any) => el.textContent);
-  //             } else {
-  //                 product["current_price"] = product["original_price"];
-  //             }
 
-  //             const regex1 = new RegExp("'", "g");
-  //             const regex2 = new RegExp('"', "g");
+      product["product_url_id"] = item;
+      product["brand_name"] = await page.$eval("div.u-flex.LarhPVhimXuUmTnRJDlM.pf7s4T1n1ycRZfLe5veB > div:nth-child(1) > a", (el: any) => el.textContent);
+      product["product_name"] = await page.$eval(".wc1Wg5BbXVFBe4MHxY3r", (el: any) => el.textContent);
 
-  //             const desc = (await page.$("#pdp-buttons > div.mt-4.px-3 > div:nth-child(1) > section > div > div:nth-child(2) > p")) || "";
-  //             if (desc) {
-  //                 const description = await desc.evaluate((el: any) => el.textContent);
-  //                 product["description"] = description.replace(regex1, "''").replace(regex2, '""');
-  //             }
+      //product["original_price"] = await page.$eval(".XuhKG9dlFz84FbsH6vfQ > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) > span:nth-child(1)", (el: any) => el.textContent);
+      //  const currentPrice = (await page.$(".u-flex.u-items-center > span:nth-child(2)")) || "";
+      //  if (currentPrice) {
+      //      product["current_price"] = await currentPrice.evaluate((el: any) => el.textContent);
+      //  } else {
+      //      product["current_price"] = product["original_price"];
+      //  }
 
-  //             const condition = await page.$eval("#pdp-buttons > div.mt-4.px-3 > div:nth-child(2) > div", (el: any) => el.textContent);
-  //             product["condition"] = condition.split(":")[1].trim();
+       const regex1 = new RegExp("'", "g");
+       const regex2 = new RegExp('"', "g");
 
-  //             const sizeElem = (await page.$("#product-size-selector > div.css-jz49cj-control > div.css-f1eru0 > div.css-1dimb5e-singleValue > div > div.block")) || "";
-  //             if (sizeElem) {
-  //                 const size = await sizeElem.evaluate((el: any) => el.textContent);
-  //                 product["size"] = size.replace(regex1, "''").replace(regex2, '""');
-  //             } else {
-  //                 product["size"] = await page.$eval("#pdp-buttons > div.mt-10 > div > div > div > div > div", (el: any) => el.textContent);
-  //                 product["size"] = product["size"].replace(regex1, "''").replace(regex2, '""');
-  //             }
+       const desc = (await page.$(".jgiusFKudDUr6aL432nM")) || "";
+       if (desc) {
+           const description = await desc.evaluate((el: any) => el.textContent);
+           product["description"] = description.replace(regex1, "''").replace(regex2, '""');
+       }
 
-  //             products.push(product);
+      // //  const condition = await page.$eval("section > div:nth-child(2) > div:nth-child(2) > div > div > div:nth-child(2) > ul > li", (el: any) => el.textContent);
+      // //  product["condition"] = condition.split(":")[1].trim();
 
-  //             ++count;
-  //             console.log(count)
-  //             if (count === 50) break;
-  //         }
+       const sizeElem = (await page.$(".P9j6cGJ6kvC9bBgLk4pE")) || "";
+       if (sizeElem) {
+           const size = await sizeElem.evaluate((el: any) => el.textContent);
+           product["size"] = size.replace(regex1, "''").replace(regex2, '""');
+       } else {
+           product["size"] = await page.$eval(" div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(3) > div:nth-child(3) > ul > li:nth-child(1)", (el: any) => el.textContent);
+           product["size"] = product["size"].replace(regex1, "''").replace(regex2, '""');
+       }
+      //  product["favourites"] = await page.$eval("", (el: any) => el.textContent);
 
-  //         await browserInstance.close();
-  //         return products;
-  //     } catch (error) {
-  //         console.log({ error });
-  //         await browserInstance.close();
-  //         return products;
-  //     }
-  // }
+      //products.push(product);
+      console.log(product);
+      // ++count;
+      // console.log(count)
+      // if (count === 50) break;
+      //}
+
+      //await browserInstance.close();
+      return product;
+    } catch (error) {
+      console.log({ error });
+      //await browserInstance.close();
+      //return products;
+    }
+  }
 }

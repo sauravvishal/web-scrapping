@@ -41,8 +41,8 @@ export class Products {
     @Column({ nullable: true, default: null })
     Date_of_first_sold!: string;
 
-    @Column({ nullable: true, default: null })
-    items_sold!: number;
+    @Column({ default: false })
+    is_sold!: boolean;
 
     @Column({ nullable: true, default: null })
     favourites!: number;

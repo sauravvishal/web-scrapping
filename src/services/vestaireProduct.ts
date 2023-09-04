@@ -122,9 +122,17 @@ export const VestaireProductDetailsScraperObject = {
                     product['brand_name'] = await page.$eval(".hero-pdp-header_heroPDPHeader__brand__XvAUi.vc-title-s", (el: any) => el.textContent);
                     product['product_name'] = await page.$eval(".hero-pdp-header_heroPDPHeader__productName___Opjc", (el: any) => el.textContent);
 
-                    product['original_price'] = await page.$eval("div.hero-pdp-details_heroPdpDetails__offerSection__pswk2 > div > span", (el: any) => el.textContent);
-                    product['original_price'] = product.original_price.replace("Sold at", "").trim();
-                    product['current_price'] = product.original_price;
+                    const ifPrice = (await page.$("div.hero-pdp-details_heroPdpDetails__offerSection__pswk2 > div > span")) || "";
+
+                    if (ifPrice) {
+                        product['original_price'] = await page.$eval("div.hero-pdp-details_heroPdpDetails__offerSection__pswk2 > div > span", (el: any) => el.textContent);
+                        product['original_price'] = product.original_price.replace("Sold at", "").trim();
+                        product['current_price'] = product.original_price;
+                    } else {
+                        product['original_price'] = await page.$eval("div.hero-pdp-details_heroPdpDetails__offerSection__pswk2 > div > p >span", (el: any) => el.textContent);
+                        product['original_price'] = product.original_price.replace("Sold at", "").trim();
+                        product['current_price'] = product.original_price;
+                    }
 
                     product['size'] = await page.$eval(".hero-pdp-product-details_heroPDPProductDetails__fiTyX.hero-pdp-details_heroPdpDetails__productDetails__mzvQq > p:nth-child(1)", (el: any) => el.textContent);
                     const desc = (await page.$(".hero-pdp-product-details_heroPDPProductDetails__fiTyX.hero-pdp-details_heroPdpDetails__productDetails__mzvQq > p:nth-child(3)")) || "";
@@ -135,9 +143,10 @@ export const VestaireProductDetailsScraperObject = {
                     } else {
                         product['description'] = await page.$eval(".hero-pdp-product-details_heroPDPProductDetails__fiTyX.hero-pdp-details_heroPdpDetails__productDetails__mzvQq > p:nth-child(2)", (el: any) => el.textContent);
                     }
-                    // product['description'] = await page.$eval(".hero-pdp-product-details_heroPDPProductDetails__fiTyX.hero-pdp-details_heroPdpDetails__productDetails__mzvQq > p:nth-child(3)", (el: any) => el.textContent);
+
                     product['url'] = await page.evaluate(() => document.location.href);
                     product['favourite'] = await page.$eval(".hero-pdp_heroPDP__gallery__likeBtn__ZNMWK.product-like-button_like__button__38sAi.product-like-button_like__button--textHidden__zrRxN", (el: any) => el.textContent);
+                    product["is_sold"] = true;
                 }
                 
                 if (Object.keys(product).length) allProducts.push(product);

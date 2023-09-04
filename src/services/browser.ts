@@ -14,7 +14,7 @@ export async function startBrowser() {
             args: ["--disable-setuid-sandbox"],
             'ignoreHTTPSErrors': true
         });
-        const newpage = await browser.newPage();
+        // const newpage = await browser.newPage();
         return browser;
         
     } catch (err) {

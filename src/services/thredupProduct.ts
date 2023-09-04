@@ -31,8 +31,6 @@ export const thredupProductDetailsScraperObject = {
     try {
       let page = await browserInstance.newPage();
       for (let [index, url] of urls.entries()) {
-
-        if (index === 0) continue;
         if (index > 0) lastPage = 0;
         if (TO_SKIP_URL.includes(url)) continue;
 
@@ -50,13 +48,12 @@ export const thredupProductDetailsScraperObject = {
           startIndex = ++lastPage;
         }
 
-        for (let i = startIndex; i <= +totalPage; i++) {
-          // const ifPopup = (await page.$("div.content > div.w_J3p7TTX1XZ71LeCrat.bJIW1yz2fvC7uVLGNW2a > div.oGz_rN1aCFDcFbEwgDkf > button")) || "";
-          // if (ifPopup) await page.click("div.content > div.w_J3p7TTX1XZ71LeCrat.bJIW1yz2fvC7uVLGNW2a > div.oGz_rN1aCFDcFbEwgDkf > button");
-          // const ifProductExists = (await page.$("div.Vb607oOokVxxYVL7SQwh.OPW0ubRZTuILGDFWrpz2")) || "";
-          // if (!ifProductExists) break;
+        await page.waitForSelector("#root > div > main > div > div.ui-container.large.u-px-2x > div.ui-container.large.u-flex > div.u-flex-1.u-flex-shrink-0.u-overflow-auto > div.u-relative > div:nth-child(2)");
+        const ifProductsExist = (await page.$(".Vb607oOokVxxYVL7SQwh.OPW0ubRZTuILGDFWrpz2")) || "";
+        if (!ifProductsExist) continue;
 
-          await page.waitForSelector("div.Vb607oOokVxxYVL7SQwh.OPW0ubRZTuILGDFWrpz2")
+        for (let i = startIndex; i <= +totalPage; i++) {
+          await page.waitForSelector("div.Vb607oOokVxxYVL7SQwh.OPW0ubRZTuILGDFWrpz2");
           let urls = await page.$$eval('div.Vb607oOokVxxYVL7SQwh.OPW0ubRZTuILGDFWrpz2', (links: any) => {
             links = links.map((el: any) => el.querySelector('a').href);
             return links;
@@ -65,12 +62,12 @@ export const thredupProductDetailsScraperObject = {
           const urlArr = urls.map((item: any) => {
             const regex = new RegExp("/", "g");
             if (item != TO_SKIP_URL) {
-              const website_name = item.split("https://www.thredup.com/product/")[1].split("/")[0].replace(regex, "-");
+              const key = url.split("?brand_name_tags=")[1];
               return {
-                product_name: website_name.slice(0, website_name.length - 1),
+                product_name: key,
                 url: item,
                 page: i,
-                url_id: 2
+                url_id: 6
               };
             }
           }).filter((i: any) => i);
@@ -79,11 +76,8 @@ export const thredupProductDetailsScraperObject = {
           //await page.waitfornavigation();
           const ifNextPage = (await page.$("div.u-flex.u-justify-between.u-py-3xs.u-relative.u-items-start > div.u-flex.u-items-center.u-space-x-1x > button:last-child")) || "";
           if (ifNextPage) await page.click("div.u-flex.u-justify-between.u-py-3xs.u-relative.u-items-start > div.u-flex.u-items-center.u-space-x-1x > button:last-child");
-
-
-          // if (i == 2) break; 
         }
-        if (index == 10) break;
+        console.log(allUrls.length);
       }
       await browserInstance.close();
       return allUrls;
@@ -126,26 +120,26 @@ export const thredupProductDetailsScraperObject = {
       //      product["current_price"] = product["original_price"];
       //  }
 
-       const regex1 = new RegExp("'", "g");
-       const regex2 = new RegExp('"', "g");
+      const regex1 = new RegExp("'", "g");
+      const regex2 = new RegExp('"', "g");
 
-       const desc = (await page.$(".jgiusFKudDUr6aL432nM")) || "";
-       if (desc) {
-           const description = await desc.evaluate((el: any) => el.textContent);
-           product["description"] = description.replace(regex1, "''").replace(regex2, '""');
-       }
+      const desc = (await page.$(".jgiusFKudDUr6aL432nM")) || "";
+      if (desc) {
+        const description = await desc.evaluate((el: any) => el.textContent);
+        product["description"] = description.replace(regex1, "''").replace(regex2, '""');
+      }
 
       // //  const condition = await page.$eval("section > div:nth-child(2) > div:nth-child(2) > div > div > div:nth-child(2) > ul > li", (el: any) => el.textContent);
       // //  product["condition"] = condition.split(":")[1].trim();
 
-       const sizeElem = (await page.$(".P9j6cGJ6kvC9bBgLk4pE")) || "";
-       if (sizeElem) {
-           const size = await sizeElem.evaluate((el: any) => el.textContent);
-           product["size"] = size.replace(regex1, "''").replace(regex2, '""');
-       } else {
-           product["size"] = await page.$eval(" div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(3) > div:nth-child(3) > ul > li:nth-child(1)", (el: any) => el.textContent);
-           product["size"] = product["size"].replace(regex1, "''").replace(regex2, '""');
-       }
+      const sizeElem = (await page.$(".P9j6cGJ6kvC9bBgLk4pE")) || "";
+      if (sizeElem) {
+        const size = await sizeElem.evaluate((el: any) => el.textContent);
+        product["size"] = size.replace(regex1, "''").replace(regex2, '""');
+      } else {
+        product["size"] = await page.$eval(" div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(3) > div:nth-child(3) > ul > li:nth-child(1)", (el: any) => el.textContent);
+        product["size"] = product["size"].replace(regex1, "''").replace(regex2, '""');
+      }
       //  product["favourites"] = await page.$eval("", (el: any) => el.textContent);
 
       //products.push(product);

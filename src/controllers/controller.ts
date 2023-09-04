@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import { config } from "../config/config";
+
 import { sendResponse } from "../common/response";
 import { startBrowser } from "../services/browser";
 import { scraperObject } from "../services/pageScraper";
@@ -11,6 +13,13 @@ import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct
 import { LampooProductDetailsScraperObject } from "../services/lampooProduct";
 import { thredupProductDetailsScraperObject } from "../services/thredupProduct";
 
+const {
+    LAMPOO_ID,
+    LUXURY_ID,
+    REAL_ID,
+    THREDUP_ID,
+    VESTAIRE_ID
+} = config;
 export class Controller {
     service: any;
     constructor() { }
@@ -153,16 +162,15 @@ export class Controller {
     vestaireProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
-            const urls = await urlRepository.findOneBy({ id: 1 });
+            const urls = await urlRepository.findOneBy({ id: VESTAIRE_ID });
             const productRepository = AppDataSource.getRepository(Product_urls);
             const latestProductUrl = await productRepository
                 .createQueryBuilder('product_urls')
-                .where('product_urls.url_id = :url_id', { url_id: 1 })
+                .where('product_urls.url_id = :url_id', { url_id: VESTAIRE_ID })
                 .orderBy('product_urls.id', 'DESC')
                 .limit(1)
                 .getOne();
             let arr: any = [];
-            // return sendResponse(res, 200, "scrapped successfully.", latestProductUrl);
 
             if (latestProductUrl) { // To filter out already inserted urls
                 const key = latestProductUrl?.product_name.split("/")[0];
@@ -209,7 +217,7 @@ export class Controller {
                         p.id AS id, p.product_name AS product_name, p.product_url_id AS product_url_id, pu.url_id AS url_id 
                     FROM product_urls pu 
                     INNER JOIN products p on p.product_url_id = pu.id
-                    WHERE pu.url_id = 1 ORDER BY p.id DESC LIMIT 1;
+                    WHERE pu.url_id = ${VESTAIRE_ID} ORDER BY p.id DESC LIMIT 1;
                     `);
 
 
@@ -219,13 +227,13 @@ export class Controller {
                 urlsToScrap = await AppDataSource.query(`
                     SELECT id, url
                     FROM product_urls
-                    WHERE id > ${data.product_url_id} AND url_id = 1;
+                    WHERE id > ${data.product_url_id} AND url_id = ${VESTAIRE_ID};
                 `);
             } else {
                 urlsToScrap = await AppDataSource.query(`
                     SELECT id, url
                     FROM product_urls
-                    WHERE url_id = 1;
+                    WHERE url_id = ${VESTAIRE_ID};
                 `)
             }
             let browserInstance = await startBrowser();
@@ -244,13 +252,11 @@ export class Controller {
             const urlRepository = AppDataSource.getRepository(Urls);
 
             const productRepository = AppDataSource.getRepository(Product_urls);
-            // const productUrl = await productRepository.find();
-            // return sendResponse(res, 200, "scrapped successfully", { count: productUrl.length});
-            let urls = await urlRepository.findOneBy({ id: 4 });
+            let urls = await urlRepository.findOneBy({ id: LAMPOO_ID });
 
             const latestProductUrl = await productRepository
                 .createQueryBuilder('product_urls')
-                .where('product_urls.url_id = :url_id', { url_id: 4 })
+                .where('product_urls.url_id = :url_id', { url_id: LAMPOO_ID })
                 .orderBy('product_urls.id', 'DESC')
                 .limit(1)
                 .getOne();
@@ -295,7 +301,7 @@ export class Controller {
                         p.id AS id, p.product_name AS product_name, p.product_url_id AS product_url_id, pu.url_id AS url_id 
                     FROM product_urls pu 
                     INNER JOIN products p on p.product_url_id = pu.id
-                    WHERE pu.url_id = 4 ORDER BY p.id DESC LIMIT 1;
+                    WHERE pu.url_id = ${LAMPOO_ID} ORDER BY p.id DESC LIMIT 1;
                     `);
 
             let urlsToScrap: any = [];
@@ -304,13 +310,13 @@ export class Controller {
                 urlsToScrap = await AppDataSource.query(`
                     SELECT id, url
                     FROM product_urls
-                    WHERE id > ${data.product_url_id} AND url_id = 4;
+                    WHERE id > ${data.product_url_id} AND url_id = ${LAMPOO_ID};
                 `);
             } else {
                 urlsToScrap = await AppDataSource.query(`
                     SELECT id, url
                     FROM product_urls
-                    WHERE url_id = 4;
+                    WHERE url_id = ${LAMPOO_ID};
                 `)
             }
 
@@ -331,14 +337,14 @@ export class Controller {
 
             const productRepository = AppDataSource.getRepository(Product_urls);
 
-            let urls = await urlRepository.findOneBy({ id: 6 });
+            let urls = await urlRepository.findOneBy({ id: THREDUP_ID });
 
             let index = urls?.urls.findIndex(i => i === "https://www.thredup.com/brands/designer/other") || 0;
             urls?.urls.splice(0, ++index);
 
             const latestProductUrl = await productRepository
                 .createQueryBuilder('product_urls')
-                .where('product_urls.url_id = :url_id', { url_id: 6 })
+                .where('product_urls.url_id = :url_id', { url_id: THREDUP_ID })
                 .orderBy('product_urls.id', 'DESC')
                 .limit(1)
                 .getOne();

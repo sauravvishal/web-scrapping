@@ -110,7 +110,6 @@ export const LampooProductDetailsScraperObject = {
                 
                 ++count;
                 console.log(count)
-                if (count === 50) break;
             }
 
             await browserInstance.close();

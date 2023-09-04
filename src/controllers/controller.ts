@@ -122,7 +122,7 @@ export class Controller {
             const luxuryUrls = await scraperObject.luxuryScraper(browserInstance);
 
             const url = new Urls();
-            url.website_name = 'https://www.therealreal.com';
+            url.website_name = 'https://theluxurycloset.com';
             url.urls = luxuryUrls;
 
             const savedUrls = await AppDataSource.manager.save(url);
@@ -229,8 +229,7 @@ export class Controller {
                 `)
             }
             let browserInstance = await startBrowser();
-            const products = await VestaireProductDetailsScraperObject.findVestaireProductDetails({ urlsToScrap:urlsToScrap.splice(0, 2), browserInstance });
-
+            const products = await VestaireProductDetailsScraperObject.findVestaireProductDetails({ urlsToScrap: urlsToScrap.splice(0, 1), browserInstance });
             const insertedData = await productRepository.insert(products);
 
             sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
@@ -316,7 +315,7 @@ export class Controller {
             }
 
             let browserInstance = await startBrowser();
-            const products = await LampooProductDetailsScraperObject.findLampooProductDetails({ urlsToScrap, browserInstance });
+            const products = await LampooProductDetailsScraperObject.findLampooProductDetails({ urlsToScrap: urlsToScrap.splice(0, 1), browserInstance });
 
             const insertedData = await productRepository.insert(products);
 

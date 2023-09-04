@@ -277,4 +277,45 @@ export class Controller {
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
+
+    thredupProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const productRepository = AppDataSource.getRepository(Products);
+            const productUrlRepository = AppDataSource.getRepository(Product_urls);
+
+            const data = await productRepository
+                .createQueryBuilder('products')
+                .select(['id', 'product_url_id'])
+                .orderBy('products.id', 'DESC')
+                .limit(1)
+                .getRawOne();
+
+            let urlsToScrap: any = [];
+
+            if (data) {
+                urlsToScrap = await productUrlRepository
+                    .createQueryBuilder('product_urls')
+                    .select(['id', 'url'])
+                    .where('product_urls.id > :id', { id: data.product_url_id })
+                    .getRawMany();
+            } else {
+                urlsToScrap = await productUrlRepository
+                    .createQueryBuilder('product_urls')
+                    .select(['id', 'url'])
+                    .getRawMany();
+            }
+
+            let browserInstance = await startBrowser();
+            const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ 
+                urlsToScrap, 
+                browserInstance 
+            });
+
+            //const insertedData = await productRepository.insert(products);
+
+            //sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
 }

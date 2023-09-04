@@ -1,5 +1,3 @@
-import { startBrowser } from "./browser";
-
 export const scraperObject = {
 
     async vestiaireScraper(browser: any) {
@@ -91,17 +89,24 @@ export const scraperObject = {
             console.log(`Navigating to ${url}...`);
             await page.goto(url);
             await page.waitForSelector('#root');
+            let allUrls: any = []
 
-            let urls = await page.evaluate(() => {
-                const anchors = Array.from(document.querySelectorAll('a'));
-                return anchors.map(anchor => {
-                    return anchor.href;
+            let urls = await page.$$eval('div.DesktopDesignerComponent__rightSection___3YNGp > div > div:nth-child(2) > ul > li', (links: any) => {
+                links = links.map((el: any) => {
+                    const anchors = Array.from(document.querySelectorAll('ul a'));
+                    return anchors.map((anchor: any) => {
+                        if (anchor.href) return anchor.href;
+                    });
                 });
+                return links;
             });
-            urls = [...new Set(urls)];
-
+            urls.map((item: any) => {
+                allUrls.push(...item);
+            });
+            
+            allUrls = [...new Set(allUrls)].filter((i: any) => i);;
             await browser.close();
-            return urls;
+            return allUrls;
         } catch (error) {
             console.log(error)
         }

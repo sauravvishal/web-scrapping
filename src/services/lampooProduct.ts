@@ -1,5 +1,6 @@
 const URL = "https://www.lampoo.com/au/designers/";
 const TO_SKIP_URL = "https://www.lampoo.com/au/account/orders-and-returns/";
+import { config } from "../config/config";
 
 export const LampooProductDetailsScraperObject = {
     async findLampooProductUrls({ urls, browserInstance, lastPage }: any) {
@@ -37,7 +38,7 @@ export const LampooProductDetailsScraperObject = {
                                 product_name: website_name.slice(0, website_name.length - 1),
                                 url: item,
                                 page: i,
-                                url_id: 4
+                                url_id: config.LAMPOO_ID
                             };
                         }
                     }).filter((i: any) => i);
@@ -46,7 +47,7 @@ export const LampooProductDetailsScraperObject = {
                     const ifNextPage = (await page.$("#__next > main > div.w-full.mx-auto > div:nth-child(4) > div > button:nth-child(3) > div")) || "";
                     if (ifNextPage) await page.click("#__next > main > div.w-full.mx-auto > div:nth-child(4) > div > button:nth-child(3) > div");
                 }
-                console.log({index})
+                console.log({ index })
                 if (index == 100) break;
             }
 
@@ -84,10 +85,10 @@ export const LampooProductDetailsScraperObject = {
                 } else {
                     product["current_price"] = product["original_price"];
                 }
-                
+
                 const regex1 = new RegExp("'", "g");
                 const regex2 = new RegExp('"', "g");
-                
+
                 const desc = (await page.$("#pdp-buttons > div.mt-4.px-3 > div:nth-child(1) > section > div > div:nth-child(2) > p")) || "";
                 if (desc) {
                     const description = await desc.evaluate((el: any) => el.textContent);
@@ -107,7 +108,7 @@ export const LampooProductDetailsScraperObject = {
                 }
 
                 products.push(product);
-                
+
                 ++count;
                 console.log(count)
             }

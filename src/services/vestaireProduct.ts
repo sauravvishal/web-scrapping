@@ -1,3 +1,5 @@
+import { config } from "../config/config";
+
 export const VestaireProductDetailsScraperObject = {
     async findVestaireProductUrls({ urls, browserInstance }: any) {
         const productUrls: any = [];
@@ -54,7 +56,7 @@ export const VestaireProductDetailsScraperObject = {
                                     product_name: brandName + productName,
                                     url: item,
                                     page: count,
-                                    url_id: 1
+                                    url_id: config.VESTAIRE_ID
                                 };
                             }
                         }).filter((i: any) => i);

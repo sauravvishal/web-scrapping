@@ -1,3 +1,5 @@
+import { startBrowser } from "./browser";
+
 export const scraperObject = {
 
     async vestiaireScraper(browser: any) {
@@ -19,26 +21,44 @@ export const scraperObject = {
         }
     },
 
-    async thredupScraper(browser: any) {
+    async thredupScraper(browser: any, url: any) {
+        let scrappedUrls = [];
         try {
-            let url = "https://www.thredup.com/brands/designer";
             let page = await browser.newPage();
             console.log(`Navigating to ${url}...`);
             await page.goto(url);
-            await page.waitForSelector('#root');
-
-            let urls = await page.evaluate(() => {
-                const anchors = Array.from(document.querySelectorAll('a'));
-                return anchors.map(anchor => {
-                    if (anchor.href.includes("https://www.thredup.com")) return anchor.href;
-                }).filter(i => i);
+            await page.waitForSelector("div.zKe5Z3CQ_GZ7CbeF0oPk > div.ui-container > nav._quEAFnjv2xlk4GmMgSG");
+            const len = await page.evaluate(() => {
+                return document.querySelectorAll(
+                    "div.zKe5Z3CQ_GZ7CbeF0oPk > div.ui-container > nav._quEAFnjv2xlk4GmMgSG > a.nklsQFqE_qT3VPQvqurw"
+                ).length;
             });
-            urls = [...new Set(urls)];
+
+            for (let i = 1; i <= len; i++) {
+                if (i !== len) await Promise.all([
+                    page.click(`div.zKe5Z3CQ_GZ7CbeF0oPk > div.ui-container > nav._quEAFnjv2xlk4GmMgSG > a:nth-child(${i + 1})`),
+                    page.waitForNavigation({ waitUntil: 'networkidle2' })
+                ]);
+                await page.waitForSelector("div.NG55LPeX625p1OzdvVdd");
+                let urls = await page.evaluate(() => {
+                    const anchors = Array.from(document.querySelectorAll(".NG55LPeX625p1OzdvVdd a"));
+                    return anchors.map((anchor: any) => {
+                        return anchor.href;
+                    }).filter(i => i);
+                });
+
+                scrappedUrls.push(...urls);
+            }
+            console.log("scrappedUrls", scrappedUrls.length)
 
             await browser.close();
-            return urls;
+            scrappedUrls = [...new Set(scrappedUrls)];
+            return scrappedUrls;
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            // await browser.close();
+            scrappedUrls = [...new Set(scrappedUrls)];
+            return scrappedUrls;
         }
     },
 

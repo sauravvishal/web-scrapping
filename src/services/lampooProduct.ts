@@ -24,12 +24,6 @@ export const LampooProductDetailsScraperObject = {
                     startIndex = ++lastPage;
                 }
                 for (let i = startIndex; i <= +totalPage; i++) {
-                    // if (i > 1) {
-                    //     if (url[url.length - 1] != "/") url += "/";
-                    //     await page.goto(`${url}?p=${i}`);
-                    //     await page.waitForNavigation();
-                    // }
-
                     let urls = await page.$$eval('div.group', (links: any) => {
                         links = links.map((el: any) => el.querySelector('a').href);
                         return links;
@@ -72,7 +66,6 @@ export const LampooProductDetailsScraperObject = {
             let page = await browserInstance.newPage();
             for (let item of urlsToScrap) {
                 console.log(`Navigating to ${item.url}...`);
-
                 await page.goto(item.url, { waitUntil: "networkidle0" });
                 const product: any = {};
 

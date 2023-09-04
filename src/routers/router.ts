@@ -16,13 +16,14 @@ class MainRouter {
         this.router.get("/scrap/get-all", this.controller.getAllUrls);
         this.router.get("/scrap/get-all-products", this.controller.getAllProducts);
 
-        this.router.post("/scrap/vestial", this.controller.vestialScrap);
+        this.router.post("/scrap/vestaire", this.controller.vestialScrap);
         this.router.post("/scrap/thredup",this.controller.thredupScrap);
         this.router.post("/scrap/luxury", this.controller.luxuryScrap); 
         this.router.post("/scrap/lampoo", this.controller.lampooScrap);
         this.router.post("/scrap/thereal", this.controller.therealScrap);
-        this.router.post("/scrap/vestial-products", this.controller.vestialProductScrap);
-        this.router.post("/scrap/lampoo-products-urls", this.controller.lampooProductUrlScrap);
+        this.router.post("/scrap/vestaire-products-urls", this.controller.vestaireProductUrlScrap);
+        this.router.post("/scrap/vestaire-products-details", this.controller.vestaireProductDetailsScrap);
+        this.router.post("/scrap/lampoo-products-urls", this.controller.lampooProductDetailsScrap);
         this.router.post("/scrap/lampoo-products-details", this.controller.lampooProductDetailsScrap);
         //this.router.post("/scrap/thredup-products-details", this.controller.thredUpProductDetailsScrap);
         this.router.post("/scrap/thredup-products-details", this.controller.thredupProductDetailsScrap);

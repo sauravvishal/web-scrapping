@@ -65,8 +65,28 @@ export class Controller {
     thredupScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             let browserInstance = await startBrowser();
-            const thredupUrls = await scraperObject.thredupScraper(browserInstance);
-
+            let urls = [
+                "https://www.thredup.com/brands/women",
+                "https://www.thredup.com/brands/designer",
+                "https://www.thredup.com/brands/maternity",
+                "https://www.thredup.com/brands/plus",
+                "https://www.thredup.com/brands/girls",
+                "https://www.thredup.com/brands/boys",
+                "https://www.thredup.com/brands/juniors",
+                "https://www.thredup.com/brands/petite",
+                "https://www.thredup.com/brands/tall",
+                "https://www.thredup.com/brands/shoes",
+                "https://www.thredup.com/brands/handbags",
+                "https://www.thredup.com/brands/accessories"
+            ];
+            let thredupUrls: any = [];
+            for (let url of urls) {
+                const scrappedUrls = await scraperObject.thredupScraper(browserInstance, url) || [];
+                thredupUrls.push(...scrappedUrls);
+                console.log("======", scrappedUrls.length, "======")
+            }
+            await browserInstance?.close();
+            console.log("controller===", thredupUrls.length)
             const url = new Urls();
             url.website_name = 'https://www.thredup.com';
             url.urls = thredupUrls;
@@ -130,19 +150,92 @@ export class Controller {
         }
     }
 
-    vestialProductScrap = async (req: Request, res: Response): Promise<any> => {
+    vestaireProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
             const urls = await urlRepository.findOneBy({ id: 1 });
+            const productRepository = AppDataSource.getRepository(Product_urls);
+            const latestProductUrl = await productRepository
+                .createQueryBuilder('product_urls')
+                .where('product_urls.url_id = :url_id', { url_id: 1 })
+                .orderBy('product_urls.id', 'DESC')
+                .limit(1)
+                .getOne();
+            let arr: any = [];
+            // return sendResponse(res, 200, "scrapped successfully.", latestProductUrl);
+
+            if (latestProductUrl) { // To filter out already inserted urls
+                const key = latestProductUrl?.product_name.split("/")[0];
+                const url = urls?.urls.find((item: any) => item.includes(key));
+                const index = urls?.urls.findIndex((item: any) => item == url) || 0 + 1;
+                arr = urls?.urls.slice(index + 1);
+            }
+            if (!arr.length) {
+                arr = urls?.urls;
+            }
 
             let browserInstance = await startBrowser();
 
-            const products = await VestaireProductDetailsScraperObject.findVestaireProductDetails({ urls: urls?.urls, browserInstance });
+            const products = await VestaireProductDetailsScraperObject.findVestaireProductUrls({
+                urls: arr,
+                browserInstance,
+                lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
+            });
 
-            // const realUrls = await scraperObject.theRealScraper(browserInstance);
+            if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
 
-            sendResponse(res, 200, "scrapped successfully", products);
+            const dbArr: any = [], resArr: any = [];
+            while (products.length) {
+                dbArr.push(products.splice(0, 10000));
+            }
+
+            for (let item of dbArr) {
+                const insertedData = await productRepository.insert(item);
+                resArr.push(...insertedData?.identifiers);
+            }
+
+            return sendResponse(res, 200, "scrapped successfully.", resArr);
         } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    vestaireProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const productRepository = AppDataSource.getRepository(Products);
+
+            const [data] = await AppDataSource.query(`
+                    SELECT 
+                        p.id AS id, p.product_name AS product_name, p.product_url_id AS product_url_id, pu.url_id AS url_id 
+                    FROM product_urls pu 
+                    INNER JOIN products p on p.product_url_id = pu.id
+                    WHERE pu.url_id = 1 ORDER BY p.id DESC LIMIT 1;
+                    `);
+
+
+            let urlsToScrap: any = [];
+
+            if (data) {
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE id > ${data.product_url_id} AND url_id = 1;
+                `);
+            } else {
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE url_id = 1;
+                `)
+            }
+            let browserInstance = await startBrowser();
+            const products = await VestaireProductDetailsScraperObject.findVestaireProductDetails({ urlsToScrap:urlsToScrap.splice(0, 2), browserInstance });
+
+            const insertedData = await productRepository.insert(products);
+
+            sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
+        } catch (error) {
+            console.log(error);
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
@@ -197,28 +290,29 @@ export class Controller {
     lampooProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const productRepository = AppDataSource.getRepository(Products);
-            const productUrlRepository = AppDataSource.getRepository(Product_urls);
 
-            const data = await productRepository
-                .createQueryBuilder('products')
-                .select(['id', 'product_url_id'])
-                .orderBy('products.id', 'DESC')
-                .limit(1)
-                .getRawOne();
+            const [data] = await AppDataSource.query(`
+                    SELECT 
+                        p.id AS id, p.product_name AS product_name, p.product_url_id AS product_url_id, pu.url_id AS url_id 
+                    FROM product_urls pu 
+                    INNER JOIN products p on p.product_url_id = pu.id
+                    WHERE pu.url_id = 4 ORDER BY p.id DESC LIMIT 1;
+                    `);
 
             let urlsToScrap: any = [];
 
             if (data) {
-                urlsToScrap = await productUrlRepository
-                    .createQueryBuilder('product_urls')
-                    .select(['id', 'url'])
-                    .where('product_urls.id > :id', { id: data.product_url_id })
-                    .getRawMany();
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE id > ${data.product_url_id} AND url_id = 4;
+                `);
             } else {
-                urlsToScrap = await productUrlRepository
-                    .createQueryBuilder('product_urls')
-                    .select(['id', 'url'])
-                    .getRawMany();
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE url_id = 4;
+                `)
             }
 
             let browserInstance = await startBrowser();
@@ -238,7 +332,7 @@ export class Controller {
 
             const productRepository = AppDataSource.getRepository(Product_urls);
 
-             let urls = await urlRepository.findOneBy({ id: 2 });
+            let urls = await urlRepository.findOneBy({ id: 2 });
 
             let index = urls?.urls.findIndex(i => i === "https://www.thredup.com/brands/designer/other") || 0;
             urls?.urls.splice(0, ++index);
@@ -265,12 +359,12 @@ export class Controller {
             const product: any = await thredupProductDetailsScraperObject.findThredupProductUrls({
                 urls: arr,
                 browserInstance,
-                lastPage: latestProductUrl?.page ? latestProductUrl?.page : null 
+                lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
             });
 
             //  if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
             //  const Data = await productRepository.insert(product);
-            return sendResponse(res, 200, "scrapped successfully", {product, length: product.length, latestProductUrl});
+            return sendResponse(res, 200, "scrapped successfully", { product, length: product.length, latestProductUrl });
             //sendResponse(res, 200, "scrapped successfully", null);
         } catch (error) {
             console.log(error);
@@ -306,9 +400,9 @@ export class Controller {
             }
 
             let browserInstance = await startBrowser();
-            const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ 
-                urlsToScrap, 
-                browserInstance 
+            const products = await thredupProductDetailsScraperObject.findThredupProductDetails({
+                urlsToScrap,
+                browserInstance
             });
 
             //const insertedData = await productRepository.insert(products);

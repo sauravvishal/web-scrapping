@@ -331,14 +331,14 @@ export class Controller {
 
             const productRepository = AppDataSource.getRepository(Product_urls);
 
-            let urls = await urlRepository.findOneBy({ id: 2 });
+            let urls = await urlRepository.findOneBy({ id: 6 });
 
             let index = urls?.urls.findIndex(i => i === "https://www.thredup.com/brands/designer/other") || 0;
             urls?.urls.splice(0, ++index);
 
             const latestProductUrl = await productRepository
                 .createQueryBuilder('product_urls')
-                .where('product_urls.url_id = :url_id', { url_id: 2 })
+                .where('product_urls.url_id = :url_id', { url_id: 6 })
                 .orderBy('product_urls.id', 'DESC')
                 .limit(1)
                 .getOne();
@@ -346,25 +346,26 @@ export class Controller {
             let arr: any = [];
 
             if (latestProductUrl) { // To filter out already inserted urls
-                const key = latestProductUrl?.url.split("https://www.thredup.com/product")[1].split("-")[1];
+                const key = latestProductUrl?.product_name;
                 const url = urls?.urls.find((item: any) => item.includes(key));
-                const index = urls?.urls.findIndex((item: any) => item == url);
-                arr = urls?.urls.slice(index);
+                const index = urls?.urls.findIndex((item: any) => item == url) || 0 + 1;
+                arr = urls?.urls.slice(index + 1);
             }
+
             if (!arr.length) {
                 arr = urls?.urls;
             }
+
             let browserInstance = await startBrowser();
             const product: any = await thredupProductDetailsScraperObject.findThredupProductUrls({
-                urls: arr,
+                urls: arr.splice(0, 1000),
                 browserInstance,
                 lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
             });
 
-            //  if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
-            //  const Data = await productRepository.insert(product);
-            return sendResponse(res, 200, "scrapped successfully", { product, length: product.length, latestProductUrl });
-            //sendResponse(res, 200, "scrapped successfully", null);
+            if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
+            const data = await productRepository.insert(product);
+            sendResponse(res, 200, "scrapped successfully", data?.identifiers);
         } catch (error) {
             console.log(error);
             sendResponse(res, 403, "Something went wrong.", null);

@@ -94,41 +94,47 @@ export const thredupProductDetailsScraperObject = {
   async findThredupProductDetails({ urlsToScrap, browserInstance }: any) {
     const products = [];
     try {
-      console.log(urlsToScrap.length);
-      //let item = "https://www.thredup.com/designer/alice-olivia?department_tags=designer&brand_name_tags=Alice%20%2B%20Olivia";
       let count = 0;
       let page = await browserInstance.newPage();
 
       for (let item of urlsToScrap) {
         console.log(`Navigating to ${item.url}...`);
-        await page.goto("https://www.thredup.com/product/women-a-beautiful-soul-blue-casual-skirt/147742076?query_id=811915308486688768&result_id=811915308612517888", { waitUntil: "networkidle0" });
+        await page.goto(item.url, { waitUntil: "networkidle0" });
         await page.waitForSelector(".kcJ47Ktxoind4bGkMYAt");
-        // await page.click('div.Vb607oOokVxxYVL7SQwh > a');
-
         const product: any = {};
 
-        // const ifPdpBtn = (await page.$("#pdp-buttons")) || "";
-        // if (!ifPdpBtn) continue;
-
-        product["product_url_id"] = item;
+        product["product_url_id"] = item.id;
         product["brand_name"] = await page.$eval("div.u-flex.LarhPVhimXuUmTnRJDlM.pf7s4T1n1ycRZfLe5veB > div:nth-child(1) > a", (el: any) => el.textContent);
         product["product_name"] = await page.$eval(".wc1Wg5BbXVFBe4MHxY3r", (el: any) => el.textContent);
-        //#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div > span.u-text-20.u-font-bold.u-mr-1xs
-        //#root > div > main > div > div > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > span
-        const priceElem = (await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div")) || "";
-        console.log(priceElem);
-        if (priceElem){
-          const originalPriceElement = await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div > span.u-text-20.u-font-bold.u-mr-1xs");
-          product["original_price"] = await page.evaluate((el: any) => el.textContent, originalPriceElement);
-          const currentPriceElement = await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div > span.price.u-font-bold.u-text-20.u-text-alert");
-          product["current_price"] = await page.evaluate((el: any) => el.textContent, currentPriceElement);
-        }else{
-          const originalPriceElement = await page.$("#root > div > main > div > div > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > span");
-          product["original_price"] = await page.evaluate((el: any) => el.textContent, originalPriceElement);
-          product["current_price"] = product["original_price"];
-        }
         
-      
+        const ifSold = await page.$eval("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > button", (el: any) => el.textContent);
+        console.log(ifSold)
+        if (ifSold != "Sold") {
+          const priceElem = (await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div > span.u-text-20.u-font-bold.u-mr-1xs")) || "";
+          if (priceElem) {
+            const originalPriceElement = await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div > span.u-text-20.u-font-bold.u-mr-1xs");
+            product["original_price"] = await page.evaluate((el: any) => el.textContent, originalPriceElement);
+            const currentPriceElement = await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div > span.price.u-font-bold.u-text-20.u-text-alert");
+            product["current_price"] = await page.evaluate((el: any) => el.textContent, currentPriceElement);
+          } else {
+            const temp = (await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > div > span.u-text-20.u-font-bold.u-mr-1xs")) || "";
+            if (temp) {
+              const originalPriceElement = await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > div > span.u-text-20.u-font-bold.u-mr-1xs");
+              product["original_price"] = await page.evaluate((el: any) => el.textContent, originalPriceElement);
+              const currentPriceElement = await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > div > span.price.u-font-bold.u-text-20.u-text-alert");
+              product["current_price"] = await page.evaluate((el: any) => el.textContent, currentPriceElement);
+            } else {
+              const originalPriceElement = await page.$("#root > div > main > div > div > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > span");
+              product["original_price"] = await page.evaluate((el: any) => el.textContent, originalPriceElement);
+              product["current_price"] = product["original_price"];
+            }
+          }
+        } else {
+          product["is_sold"] = true;
+          product["original_price"] = "sold";
+          product["current_price"] = "sold";
+        }
+
         const regex1 = new RegExp("'", "g");
         const regex2 = new RegExp('"', "g");
 
@@ -137,11 +143,8 @@ export const thredupProductDetailsScraperObject = {
           const description = await desc.evaluate((el: any) => el.textContent);
           product["description"] = description.replace(regex1, "''").replace(regex2, '""');
         }
-        //#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(2) > div > div > div:nth-child(2) > ul > li
-        //#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(2) > div > div > div:nth-child(2) > ul > li
-        // await page.waitForSelector("div.dbhnmqvaB2E26dQvyBVl > section > .u-border-gray-1.u-border.u-border-solid.u-rounded-4.u-p-4x.u-mb-3xs.u-bg-gray-0:nth-child(1) > div.u-flex.u-items-center > div:nth-child(2)")
+        
         product["condition"] = await page.$eval("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(2) > div > div > div:nth-child(2) > ul > li", (el: any) => el.textContent);
-        //products.push(product);
 
         const sizeElem = (await page.$(".P9j6cGJ6kvC9bBgLk4pE")) || "";
         if (sizeElem) {
@@ -152,12 +155,10 @@ export const thredupProductDetailsScraperObject = {
           product["size"] = product["size"].replace(regex1, "''").replace(regex2, '""');
         }
         product["favourites"] = await page.$eval("button[aria-label='favorite'] > div > span", (el: any) => el.textContent);
-        console.log(product);
+        product["favourites"] = +product.favourites.split(" ")[0];
         products.push(product);
         // ++count;
         // console.log(count)
-        // if (count === 50) break;
-        break;
       }
       await browserInstance.close();
 
@@ -167,8 +168,5 @@ export const thredupProductDetailsScraperObject = {
       await browserInstance.close();
       return products;
     }
-
-
-
   }
 }

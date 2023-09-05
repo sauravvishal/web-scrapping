@@ -8,10 +8,11 @@ import { Urls } from "../database/entity/Url";
 import { Product_urls } from "../database/entity/ProductUrls";
 import { Products } from "../database/entity/Product";
 import { AppDataSource } from "../database/data-source";
-import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct";
 
+import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct";
 import { LampooProductDetailsScraperObject } from "../services/lampooProduct";
 import { thredupProductDetailsScraperObject } from "../services/thredupProduct";
+import { LuxuryProductDetailsScraperObject } from "../services/luxuryProduct";
 
 const {
     LAMPOO_ID,
@@ -334,9 +335,9 @@ export class Controller {
     thredupProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
-            
+
             const productRepository = AppDataSource.getRepository(Product_urls);
-            
+
             let urls = await urlRepository.findOneBy({ id: THREDUP_ID });
 
             let index = urls?.urls.findIndex(i => i === "https://www.thredup.com/brands/designer/other") || 0;
@@ -406,13 +407,63 @@ export class Controller {
                     WHERE url_id = ${THREDUP_ID};
                 `)
             }
-            
-           
+
             let browserInstance = await startBrowser();
-            //console.log(urlsToScrap);
             const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ urlsToScrap: urlsToScrap.slice(0, 10), browserInstance });
-            // const insertedData = await productRepository.insert(products);
-             sendResponse(res, 200, "scrapped successfully", products);
+            const insertedData = await productRepository.insert(products);
+            sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    luxuryProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const urlRepository = AppDataSource.getRepository(Urls);
+
+            const productRepository = AppDataSource.getRepository(Product_urls);
+            let urls = await urlRepository.findOneBy({ id: LUXURY_ID });
+
+            const latestProductUrl = await productRepository
+                .createQueryBuilder('product_urls')
+                .where('product_urls.url_id = :url_id', { url_id: LUXURY_ID })
+                .orderBy('product_urls.id', 'DESC')
+                .limit(1)
+                .getOne();
+
+            let arr: any = [];
+
+            if (latestProductUrl) { // To filter out already inserted urls
+                const key = latestProductUrl?.url.split("https://www.lampoo.com/au/products/")[1].split("/")[1].split("-")[0];
+                const url = urls?.urls.find((item: any) => item.includes(key));
+                const index = urls?.urls.findIndex((item: any) => item == url);
+                arr = urls?.urls.slice(index);
+            }
+
+            if (!arr.length) {
+                arr = urls?.urls;
+            }
+
+            let browserInstance = await startBrowser();
+
+            const products = await LuxuryProductDetailsScraperObject.findLuxuryProductUrls({
+                urls: arr,
+                browserInstance
+            });
+
+            if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
+            const insertedData = await productRepository.insert(products);
+
+            sendResponse(res, 200, "scrapped successfully", insertedData);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    luxuryProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            sendResponse(res, 200, "scrapped successfully", "sjhagja");
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

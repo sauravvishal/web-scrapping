@@ -23,12 +23,12 @@ class MainRouter {
         this.router.post("/scrap/thereal", this.controller.therealScrap);
         this.router.post("/scrap/vestaire-products-urls", this.controller.vestaireProductUrlScrap);
         this.router.post("/scrap/vestaire-products-details", this.controller.vestaireProductDetailsScrap);
-        this.router.post("/scrap/lampoo-products-urls", this.controller.lampooProductDetailsScrap);
+        this.router.post("/scrap/lampoo-products-urls", this.controller.lampooProductUrlScrap);
         this.router.post("/scrap/lampoo-products-details", this.controller.lampooProductDetailsScrap);
-        //this.router.post("/scrap/thredup-products-details", this.controller.thredUpProductDetailsScrap);
-        this.router.post("/scrap/thredup-products-details", this.controller.thredupProductDetailsScrap);
         this.router.post("/scrap/thredup-products-urls", this.controller.thredupProductUrlScrap);
-        // this.router.post("/scrap/vestial-products", this.controller.vestialProductScrap);
+        this.router.post("/scrap/thredup-products-details", this.controller.thredupProductDetailsScrap);
+        this.router.post("/scrap/luxury-products-urls", this.controller.luxuryProductUrlScrap);
+        this.router.post("/scrap/luxury-products-details", this.controller.luxuryProductDetailsScrap);
         
         this.router.use('*', function (req: Request, res: Response) {
             sendResponse(res, 404, "Not Found.", null);

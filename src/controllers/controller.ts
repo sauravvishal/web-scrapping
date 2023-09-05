@@ -334,9 +334,9 @@ export class Controller {
     thredupProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
-
+            
             const productRepository = AppDataSource.getRepository(Product_urls);
-
+            
             let urls = await urlRepository.findOneBy({ id: THREDUP_ID });
 
             let index = urls?.urls.findIndex(i => i === "https://www.thredup.com/brands/designer/other") || 0;
@@ -364,7 +364,7 @@ export class Controller {
 
             let browserInstance = await startBrowser();
             const product: any = await thredupProductDetailsScraperObject.findThredupProductUrls({
-                urls: arr.splice(0, 1000),
+                urls: arr.splice(0, 20),
                 browserInstance,
                 lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
             });
@@ -381,39 +381,38 @@ export class Controller {
     thredupProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const productRepository = AppDataSource.getRepository(Products);
-            const productUrlRepository = AppDataSource.getRepository(Product_urls);
 
-            const data = await productRepository
-                .createQueryBuilder('products')
-                .select(['id', 'product_url_id'])
-                .orderBy('products.id', 'DESC')
-                .limit(1)
-                .getRawOne();
+            const [data] = await AppDataSource.query(`
+                    SELECT 
+                        p.id AS id, p.product_name AS product_name, p.product_url_id AS product_url_id, pu.url_id AS url_id 
+                    FROM product_urls pu 
+                    INNER JOIN products p on p.product_url_id = pu.id
+                    WHERE pu.url_id = ${THREDUP_ID} ORDER BY p.id DESC LIMIT 1;
+                    `);
+
 
             let urlsToScrap: any = [];
 
             if (data) {
-                urlsToScrap = await productUrlRepository
-                    .createQueryBuilder('product_urls')
-                    .select(['id', 'url'])
-                    .where('product_urls.id > :id', { id: data.product_url_id })
-                    .getRawMany();
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE id > ${data.product_url_id} AND url_id = ${THREDUP_ID};
+                `);
             } else {
-                urlsToScrap = await productUrlRepository
-                    .createQueryBuilder('product_urls')
-                    .select(['id', 'url'])
-                    .getRawMany();
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE url_id = ${THREDUP_ID};
+                `)
             }
-
+            
+           
             let browserInstance = await startBrowser();
-            const products = await thredupProductDetailsScraperObject.findThredupProductDetails({
-                urlsToScrap,
-                browserInstance
-            });
-
-            //const insertedData = await productRepository.insert(products);
-
-            //sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
+            //console.log(urlsToScrap);
+            const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ urlsToScrap: urlsToScrap.slice(0, 10), browserInstance });
+            // const insertedData = await productRepository.insert(products);
+             sendResponse(res, 200, "scrapped successfully", products);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

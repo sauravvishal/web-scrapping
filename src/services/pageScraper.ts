@@ -49,7 +49,7 @@ export const scraperObject = {
             }
             console.log("scrappedUrls", scrappedUrls.length)
 
-            await browser.close();
+            //await browser.close();
             scrappedUrls = [...new Set(scrappedUrls)];
             return scrappedUrls;
         } catch (error) {

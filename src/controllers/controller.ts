@@ -335,9 +335,9 @@ export class Controller {
     thredupProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
-            
+
             const productRepository = AppDataSource.getRepository(Product_urls);
-            
+
             let urls = await urlRepository.findOneBy({ id: THREDUP_ID });
 
             let index = urls?.urls.findIndex(i => i === "https://www.thredup.com/brands/designer/other") || 0;
@@ -407,14 +407,13 @@ export class Controller {
                     WHERE url_id = ${THREDUP_ID};
                 `)
             }
-            
-           
+
             let browserInstance = await startBrowser();
-            //console.log(urlsToScrap);
             const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ urlsToScrap: urlsToScrap.slice(0, 10), browserInstance });
-            // const insertedData = await productRepository.insert(products);
-             sendResponse(res, 200, "scrapped successfully", products);
+            const insertedData = await productRepository.insert(products);
+            sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
         } catch (error) {
+            console.log(error)
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }

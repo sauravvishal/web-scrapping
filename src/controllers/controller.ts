@@ -13,6 +13,7 @@ import { VestaireProductDetailsScraperObject } from "../services/vestaireProduct
 import { LampooProductDetailsScraperObject } from "../services/lampooProduct";
 import { thredupProductDetailsScraperObject } from "../services/thredupProduct";
 import { LuxuryProductDetailsScraperObject } from "../services/luxuryProduct";
+import { theRealProductDetailsScraperObject } from "../services/theRealProduct";
 
 const {
     LAMPOO_ID,
@@ -356,22 +357,29 @@ export class Controller {
         }
     }
 
-    therealScrap = async (req: Request, res: Response): Promise<any> => {
+    theRealScrap = async (req: Request, res: Response): Promise<any> => {
         try {
-            let browserInstance = await startBrowser();
-            const realUrls = await scraperObject.theRealScraper(browserInstance);
-
-            const url = new Urls();
-            url.website_name = 'https://www.therealreal.com';
-            url.urls = realUrls;
-
-            const savedUrls = await AppDataSource.manager.save(url);
-
-            sendResponse(res, 200, "scrapped successfully", savedUrls);
+          let browserInstance = await startBrowser();
+          let urls = [
+            "https://www.therealreal.com/designers/women"
+          ];
+          let theRealUrls: any = [];
+          for (let url of urls) {
+            const scrappedUrls = await scraperObject.theRealScraper(browserInstance, url) || [];
+            theRealUrls.push(...scrappedUrls);
+            console.log("======", scrappedUrls.length, "======")
+          }
+          await browserInstance?.close();
+          console.log("controller===", theRealUrls)
+          const url = new Urls();
+          url.website_name = 'https://www.therealreal.com';
+          url.urls = theRealUrls;
+          //const savedUrls = await AppDataSource.manager.save(url);
+          return sendResponse(res, 200, "scrapped successfully", theRealUrls);
         } catch (error) {
-            sendResponse(res, 403, "Something went wrong.", null);
+          sendResponse(res, 403, "Something went wrong.", null);
         }
-    }
+      }
 
     vestaireProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
@@ -779,6 +787,92 @@ export class Controller {
 
             sendResponse(res, 200, "scrapped successfully.", resArr);
         } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    theRealProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const urlRepository = AppDataSource.getRepository(Urls);
+            const urls = await urlRepository.findOneBy({ id: REAL_ID });
+            const productRepository = AppDataSource.getRepository(Product_urls);
+            const latestProductUrl = await productRepository
+                .createQueryBuilder('product_urls')
+                .where('product_urls.url_id = :url_id', { url_id: REAL_ID })
+                .orderBy('product_urls.id', 'DESC')
+                .limit(1)
+                .getOne();
+            let arr: any = [];
+
+            if (latestProductUrl) { // To filter out already inserted urls
+                const key = latestProductUrl?.product_name.split("/")[0];
+                const url = urls?.urls.find((item: any) => item.includes(key));
+                const index = urls?.urls.findIndex((item: any) => item == url) || 0 + 1;
+                arr = urls?.urls.slice(index + 1);
+            }
+            if (!arr.length) {
+                arr = urls?.urls;
+            }
+            let browserInstance = await startBrowser();
+            const products = await theRealProductDetailsScraperObject.findTheRealProductUrls({
+                urls: arr,
+                browserInstance,
+                lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
+            });
+
+            // if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
+
+            // const dbArr: any = [], resArr: any = [];
+            // while (products.length) {
+            //     dbArr.push(products.splice(0, 10000));
+            // }
+
+            // for (let item of dbArr) {
+            //     const insertedData = await productRepository.insert(item);
+            //     resArr.push(...insertedData?.identifiers);
+            // }
+
+            return sendResponse(res, 200, "scrapped successfully.",products);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    theRealProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const productRepository = AppDataSource.getRepository(Products);
+
+            const [data] = await AppDataSource.query(`
+                    SELECT 
+                        p.id AS id, p.product_name AS product_name, p.product_url_id AS product_url_id, pu.url_id AS url_id 
+                    FROM product_urls pu 
+                    INNER JOIN products p on p.product_url_id = pu.id
+                    WHERE pu.url_id = ${REAL_ID} ORDER BY p.id DESC LIMIT 1;
+                    `);
+
+
+            let urlsToScrap: any = [];
+
+            if (data) {
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE id > ${data.product_url_id} AND url_id = ${REAL_ID};
+                `);
+            } else {
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE url_id = ${REAL_ID};
+                `)
+            }
+            let browserInstance = await startBrowser();
+            const products = await  theRealProductDetailsScraperObject.findTheRealProductDetails({ urlsToScrap: urlsToScrap.splice(0, 1), browserInstance });
+            const insertedData = await productRepository.insert(products);
+
+            sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
+        } catch (error) {
+            console.log(error);
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }

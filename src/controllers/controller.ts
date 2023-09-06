@@ -25,6 +25,14 @@ export class Controller {
     service: any;
     constructor() { }
 
+    test = async (req: Request, res: Response): Promise<any> => {
+        try {
+            sendResponse(res, 200, "Everything is OK !!!!", null);
+        } catch (error) {
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
     getAllUrls = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
@@ -43,10 +51,213 @@ export class Controller {
         }
     }
 
+    getAllProductUrlCount = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const data = await AppDataSource.query(`
+                SELECT 
+                    pu.url_id AS url_id, u.website_name AS website_name, COUNT(pu.*) AS product_url_count
+                FROM product_urls pu 
+                INNER JOIN urls u ON u.id = pu.url_id
+                GROUP BY pu.url_id, u.id;
+            `);
+
+            if (!data.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", data);
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
     getAllProducts = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
                 SELECT * FROM products;
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    getVestaireProductsUrls = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT * FROM product_urls WHERE url_id = ${VESTAIRE_ID};
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    getLampooProductsUrls = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT * FROM product_urls WHERE url_id = ${LAMPOO_ID};
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    getThredupProductsUrls = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT * FROM product_urls WHERE url_id = ${THREDUP_ID};
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    getLuxuryProductsUrls = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT * FROM product_urls WHERE url_id = ${LUXURY_ID};
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    getVestaireProductsDetails = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT 
+                    p.id AS product_id,
+                    p.product_name,
+                    p.brand_name,
+                    p.current_price,
+                    p.original_price,
+                    p.description,
+                    p.condition,
+                    p.size,
+                    p.is_sold,
+                    pu.id AS product_url_id,
+                    pu.url AS product_url,
+                    u.website_name
+                FROM products p
+                INNER JOIN product_urls pu ON p.product_url_id = pu.id
+                INNER JOIN urls u ON u.id = pu.url_id
+                WHERE pu.url_id = ${VESTAIRE_ID};
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    getLampooProductsDetails = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT 
+                    p.id AS product_id,
+                    p.product_name,
+                    p.brand_name,
+                    p.current_price,
+                    p.original_price,
+                    p.description,
+                    p.condition,
+                    p.size,
+                    p.is_sold,
+                    pu.id AS product_url_id,
+                    pu.url AS product_url,
+                    u.website_name
+                FROM products p
+                INNER JOIN product_urls pu ON p.product_url_id = pu.id
+                INNER JOIN urls u ON u.id = pu.url_id
+                WHERE pu.url_id = ${LAMPOO_ID};
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    getThredupProductsDetails = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT 
+                    p.id AS product_id,
+                    p.product_name,
+                    p.brand_name,
+                    p.current_price,
+                    p.original_price,
+                    p.description,
+                    p.condition,
+                    p.size,
+                    p.is_sold,
+                    pu.id AS product_url_id,
+                    pu.url AS product_url,
+                    u.website_name
+                FROM products p
+                INNER JOIN product_urls pu ON p.product_url_id = pu.id
+                INNER JOIN urls u ON u.id = pu.url_id
+                WHERE pu.url_id = ${THREDUP_ID};
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    getLuxuryProductsDetails = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT 
+                    p.id AS product_id,
+                    p.product_name,
+                    p.brand_name,
+                    p.current_price,
+                    p.original_price,
+                    p.description,
+                    p.condition,
+                    p.size,
+                    p.is_sold,
+                    pu.id AS product_url_id,
+                    pu.url AS product_url,
+                    u.website_name
+                FROM products p
+                INNER JOIN product_urls pu ON p.product_url_id = pu.id
+                INNER JOIN urls u ON u.id = pu.url_id
+                WHERE pu.url_id = ${LUXURY_ID};
             `);
 
             if (!products.length) return sendResponse(res, 404, "No data found.", null);
@@ -239,10 +450,20 @@ export class Controller {
                 `)
             }
             let browserInstance = await startBrowser();
-            const products = await VestaireProductDetailsScraperObject.findVestaireProductDetails({ urlsToScrap: urlsToScrap.splice(0, 1), browserInstance });
-            const insertedData = await productRepository.insert(products);
+            const products = await VestaireProductDetailsScraperObject.findVestaireProductDetails({ urlsToScrap, browserInstance });
+            if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
 
-            sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
+            const dbArr: any = [], resArr: any = [];
+            while (products.length) {
+                dbArr.push(products.splice(0, 10000));
+            }
+
+            for (let item of dbArr) {
+                const insertedData = await productRepository.insert(item);
+                resArr.push(...insertedData?.identifiers);
+            }
+
+            return sendResponse(res, 200, "scrapped successfully.", resArr);
         } catch (error) {
             console.log(error);
             sendResponse(res, 403, "Something went wrong.", null);
@@ -279,15 +500,24 @@ export class Controller {
             let browserInstance = await startBrowser();
 
             const products = await LampooProductDetailsScraperObject.findLampooProductUrls({
-                urls: arr,
+                urls: arr.splice(0, 15),
                 browserInstance,
                 lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
             });
 
             if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
-            const insertedData = await productRepository.insert(products);
 
-            sendResponse(res, 200, "scrapped successfully", { total_scrapped: products.length, insertedData });
+            const dbArr: any = [], resArr: any = [];
+            while (products.length) {
+                dbArr.push(products.splice(0, 10000));
+            }
+
+            for (let item of dbArr) {
+                const insertedData = await productRepository.insert(item);
+                resArr.push(...insertedData?.identifiers);
+            }
+
+            sendResponse(res, 200, "scrapped successfully.", resArr);
         } catch (error) {
             console.log(error)
             sendResponse(res, 403, "Something went wrong.", null);
@@ -325,10 +555,21 @@ export class Controller {
             let browserInstance = await startBrowser();
             const products = await LampooProductDetailsScraperObject.findLampooProductDetails({ urlsToScrap: urlsToScrap.splice(0, 1), browserInstance });
 
-            const insertedData = await productRepository.insert(products);
+            if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
 
-            sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
+            const dbArr: any = [], resArr: any = [];
+            while (products.length) {
+                dbArr.push(products.splice(0, 10));
+            }
+
+            for (let item of dbArr) {
+                const insertedData = await productRepository.insert(item);
+                resArr.push(...insertedData?.identifiers);
+            }
+
+            sendResponse(res, 200, "scrapped successfully.", resArr);
         } catch (error) {
+            console.log({error});
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
@@ -366,14 +607,24 @@ export class Controller {
 
             let browserInstance = await startBrowser();
             const product: any = await thredupProductDetailsScraperObject.findThredupProductUrls({
-                urls: arr.splice(0, 20),
+                urls: arr,
                 browserInstance,
                 lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
             });
 
             if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
-            const data = await productRepository.insert(product);
-            sendResponse(res, 200, "scrapped successfully", data?.identifiers);
+            
+            const dbArr: any = [], resArr: any = [];
+            while (product.length) {
+                dbArr.push(product.splice(0, 10000));
+            }
+
+            for (let item of dbArr) {
+                const insertedData = await productRepository.insert(item);
+                resArr.push(...insertedData?.identifiers);
+            }
+
+            sendResponse(res, 200, "scrapped successfully.", resArr);
         } catch (error) {
             console.log(error);
             sendResponse(res, 403, "Something went wrong.", null);
@@ -409,9 +660,20 @@ export class Controller {
             }
 
             let browserInstance = await startBrowser();
-            const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ urlsToScrap: urlsToScrap.slice(0, 10), browserInstance });
-            const insertedData = await productRepository.insert(products);
-            sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);
+            const products = await thredupProductDetailsScraperObject.findThredupProductDetails({ urlsToScrap, browserInstance });
+            if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
+
+            const dbArr: any = [], resArr: any = [];
+            while (products.length) {
+                dbArr.push(products.splice(0, 10000));
+            }
+
+            for (let item of dbArr) {
+                const insertedData = await productRepository.insert(item);
+                resArr.push(...insertedData?.identifiers);
+            }
+
+            sendResponse(res, 200, "scrapped successfully.", resArr);
         } catch (error) {
             console.log(error)
             sendResponse(res, 403, "Something went wrong.", null);
@@ -502,10 +764,20 @@ export class Controller {
             }
 
             let browserInstance = await startBrowser();
-            const products = await LuxuryProductDetailsScraperObject.findLuxuryProductDetails({ urlsToScrap: urlsToScrap.splice(0, 10), browserInstance });
-            const insertedData = await productRepository.insert(products);
+            const products = await LuxuryProductDetailsScraperObject.findLuxuryProductDetails({ urlsToScrap, browserInstance });
+            if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
 
-            sendResponse(res, 200, "scrapped successfully", insertedData);
+            const dbArr: any = [], resArr: any = [];
+            while (products.length) {
+                dbArr.push(products.splice(0, 10000));
+            }
+
+            for (let item of dbArr) {
+                const insertedData = await productRepository.insert(item);
+                resArr.push(...insertedData?.identifiers);
+            }
+
+            sendResponse(res, 200, "scrapped successfully.", resArr);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

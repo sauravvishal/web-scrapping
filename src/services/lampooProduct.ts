@@ -21,7 +21,7 @@ export const LampooProductDetailsScraperObject = {
                 }
 
                 let startIndex = 1;
-                if (lastPage && lastPage < totalPage) {
+                if (lastPage && lastPage <= totalPage) {
                     startIndex = ++lastPage;
                 }
                 for (let i = startIndex; i <= +totalPage; i++) {
@@ -47,8 +47,8 @@ export const LampooProductDetailsScraperObject = {
                     const ifNextPage = (await page.$("#__next > main > div.w-full.mx-auto > div:nth-child(4) > div > button:nth-child(3) > div")) || "";
                     if (ifNextPage) await page.click("#__next > main > div.w-full.mx-auto > div:nth-child(4) > div > button:nth-child(3) > div");
                 }
-                console.log({ index })
-                if (index == 100) break;
+                // console.log({ index })
+                // if (index == 100) break;
             }
 
             await browserInstance.close();
@@ -103,8 +103,11 @@ export const LampooProductDetailsScraperObject = {
                     const size = await sizeElem.evaluate((el: any) => el.textContent);
                     product["size"] = size.replace(regex1, "''").replace(regex2, '""');
                 } else {
-                    product["size"] = await page.$eval("#pdp-buttons > div.mt-10 > div > div > div > div > div", (el: any) => el.textContent);
-                    product["size"] = product["size"].replace(regex1, "''").replace(regex2, '""');
+                    const ifPres = (await page.$("#pdp-buttons > div.mt-10 > div > div > div > div > div")) || "";
+                    if (ifPres) {
+                        product["size"] = await page.$eval("#pdp-buttons > div.mt-10 > div > div > div > div > div", (el: any) => el.textContent);
+                        product["size"] = product["size"].replace(regex1, "''").replace(regex2, '""');
+                    }
                 }
 
                 products.push(product);

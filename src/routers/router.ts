@@ -12,10 +12,23 @@ class MainRouter {
     }
 
     init() {
-
+        // get-requests
+        this.router.get("/test", this.controller.test);
         this.router.get("/scrap/get-all", this.controller.getAllUrls);
         this.router.get("/scrap/get-all-products", this.controller.getAllProducts);
+        this.router.get("/scrap/get-product-url-count", this.controller.getAllProductUrlCount);
+        
+        this.router.get("/scrap/get-vestaire-products-urls", this.controller.getVestaireProductsUrls);
+        this.router.get("/scrap/get-lampoo-products-urls", this.controller.getLampooProductsUrls);
+        this.router.get("/scrap/get-thredup-products-urls", this.controller.getThredupProductsUrls);
+        this.router.get("/scrap/get-luxury-products-urls", this.controller.getLuxuryProductsUrls);
 
+        this.router.get("/scrap/get-vestaire-products-details", this.controller.getVestaireProductsDetails);
+        this.router.get("/scrap/get-lampoo-products-details", this.controller.getLampooProductsDetails);
+        this.router.get("/scrap/get-thredup-products-details", this.controller.getThredupProductsDetails);
+        this.router.get("/scrap/get-luxury-products-details", this.controller.getLuxuryProductsDetails);
+
+        // post-requests
         this.router.post("/scrap/vestaire", this.controller.vestialScrap);
         this.router.post("/scrap/thredup",this.controller.thredupScrap);
         this.router.post("/scrap/luxury", this.controller.luxuryScrap); 

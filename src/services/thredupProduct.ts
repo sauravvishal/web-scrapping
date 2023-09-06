@@ -108,7 +108,7 @@ export const thredupProductDetailsScraperObject = {
         product["product_name"] = await page.$eval(".wc1Wg5BbXVFBe4MHxY3r", (el: any) => el.textContent);
         
         const ifSold = await page.$eval("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > button", (el: any) => el.textContent);
-        console.log(ifSold)
+
         if (ifSold != "Sold") {
           const priceElem = (await page.$("#root > div > main > div > div.dbhnmqvaB2E26dQvyBVl > section > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div > span.u-text-20.u-font-bold.u-mr-1xs")) || "";
           if (priceElem) {

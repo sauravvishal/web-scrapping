@@ -38,7 +38,7 @@ export const LuxuryProductDetailsScraperObject = {
                         console.log(`Navigating to ${currentUrl}...`);
                         await page.goto(currentUrl, { waitUntil: 'networkidle2' });
                     }
-                    console.log("inside loop", count);
+
                     await page.waitForSelector("#root > div.DesktopWidth__base___3ZRAa");
 
                     let urls = await page.$$eval('div.Mpp__productGridWrapperNewBase___1Vm7T > div', (links: any) => {
@@ -61,10 +61,10 @@ export const LuxuryProductDetailsScraperObject = {
                     }).filter((i: any) => i);
 
                     productUrls.push(...urlArr);
-                    console.log(productUrls.length);
+                    // console.log(productUrls.length);
 
                     const ifLastBtn = (await page.$("div.Mpp__paginationItem___1uP0o > ul > div:last-child")) || "";
-                    console.log("count====", count);
+                    // console.log("count====", count);
                     // if (count === 100) break;
                     if (!ifLastBtn) break;
 
@@ -80,7 +80,6 @@ export const LuxuryProductDetailsScraperObject = {
                         await page.goto(toNavigate, { waitUntil: 'networkidle2' });
                     }
                 }
-                break;
             }
             console.log("after for loop");
             await browserInstance.close();

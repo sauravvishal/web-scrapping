@@ -70,7 +70,7 @@ export const VestaireProductDetailsScraperObject = {
                     // console.log("after while loop", index);
                     // break;
                 }
-                if (productUrls.length > 5000) break;
+                // if (productUrls.length > 5000) break;
             }
             console.log("after for loop");
             await browserInstance.close();

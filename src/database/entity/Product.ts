@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne } from "typeorm";
 import { Product_urls } from "./ProductUrls";
 
 @Entity()
@@ -10,7 +10,7 @@ export class Products {
     @Column()
     product_name!: string
 
-    @OneToOne(() => Product_urls)
+    @ManyToOne(() => Product_urls)
     @JoinColumn({ name: "product_url_id" })
     product_url_id!: Product_urls;
 

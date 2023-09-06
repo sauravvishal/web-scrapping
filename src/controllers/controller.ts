@@ -1050,7 +1050,7 @@ export class Controller {
             }
             let browserInstance = await startBrowser();
             const products = await theRealProductDetailsScraperObject.findTheRealProductUrls({
-                urls: arr,
+                urls: arr.splice(0, 2),
                 browserInstance,
                 lastPage: latestProductUrl?.page ? latestProductUrl?.page : null
             });

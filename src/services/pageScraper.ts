@@ -122,24 +122,14 @@ export const scraperObject = {
             await page.waitForSelector(".designer-directory__content > .designer-alphabet");
             await page.waitForSelector("div.design-directory__columns");
 
-            for (let i =1; i < 8; i++) {
-                
-                    let urls = await page.evaluate(() => {
-                        const anchors = Array.from(document.querySelectorAll(".designer-directory__designer > a"));
-                        return anchors.map((anchor: any) => {
-                            return anchor.href;
-                        }).filter(i => i);
-                    });
-                    page.click(`.designer-directory__nav-bar > ul > li.designer-directory__nav-bar-text:nth-child(${i})`),
-                    page.waitForNavigation({ waitUntil: 'networkidle2' });
-                    
-                    scrappedUrls.push(...urls);
+            let urls = await page.evaluate(() => {
+                const anchors = Array.from(document.querySelectorAll(".designer-directory__designer > a"));
+                return anchors.map((anchor: any) => {
+                    return anchor.href;
+                }).filter(i => i);
+            });
 
-            }
-            console.log("scrappedUrls", scrappedUrls.length)
-
-            await browser.close();
-            scrappedUrls = [...new Set(scrappedUrls)];
+            scrappedUrls.push(...urls);
             return scrappedUrls;
         } catch (error) {
             console.log(error)

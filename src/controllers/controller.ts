@@ -45,13 +45,15 @@ export class Controller {
 
     getAllProducts = async (req: Request, res: Response): Promise<any> => {
         try {
-            const productRepository = AppDataSource.getRepository(Products);
-            const [products, count] = await productRepository.findAndCount();
-            if (!count) return sendResponse(res, 404, "No data found.", null);
-            let total_count = products.reduce((sum: number, item: any) => ++sum, 0)
+            const products = await AppDataSource.query(`
+                SELECT * FROM products;
+            `);
 
-            sendResponse(res, 200, "scrapped successfully", { total_count, ...products });
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
         } catch (error) {
+            console.log(error)
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
@@ -219,8 +221,7 @@ export class Controller {
                     FROM product_urls pu 
                     INNER JOIN products p on p.product_url_id = pu.id
                     WHERE pu.url_id = ${VESTAIRE_ID} ORDER BY p.id DESC LIMIT 1;
-                    `);
-
+                `);
 
             let urlsToScrap: any = [];
 
@@ -389,8 +390,7 @@ export class Controller {
                     FROM product_urls pu 
                     INNER JOIN products p on p.product_url_id = pu.id
                     WHERE pu.url_id = ${THREDUP_ID} ORDER BY p.id DESC LIMIT 1;
-                    `);
-
+                `);
 
             let urlsToScrap: any = [];
 
@@ -435,7 +435,8 @@ export class Controller {
             let arr: any = [];
 
             if (latestProductUrl) { // To filter out already inserted urls
-                const key = latestProductUrl?.url.split("https://www.lampoo.com/au/products/")[1].split("/")[1].split("-")[0];
+                const keyArr = latestProductUrl?.product_name.split("/");
+                const key = keyArr.splice(0, keyArr.length - 1).join("/");
                 const url = urls?.urls.find((item: any) => item.includes(key));
                 const index = urls?.urls.findIndex((item: any) => item == url);
                 arr = urls?.urls.slice(index);
@@ -449,21 +450,62 @@ export class Controller {
 
             const products = await LuxuryProductDetailsScraperObject.findLuxuryProductUrls({
                 urls: arr,
-                browserInstance
+                browserInstance,
+                lastPage: latestProductUrl?.page
             });
 
             if (!products.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
-            const insertedData = await productRepository.insert(products);
 
-            sendResponse(res, 200, "scrapped successfully", insertedData);
+            const dbArr: any = [], resArr: any = [];
+            while (products.length) {
+                dbArr.push(products.splice(0, 10000));
+            }
+
+            for (let item of dbArr) {
+                const insertedData = await productRepository.insert(item);
+                resArr.push(...insertedData?.identifiers);
+            }
+
+            sendResponse(res, 200, "scrapped successfully", resArr);
         } catch (error) {
+            console.log(error)
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
 
     luxuryProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
         try {
-            sendResponse(res, 200, "scrapped successfully", "sjhagja");
+            const productRepository = AppDataSource.getRepository(Products);
+
+            const [data] = await AppDataSource.query(`
+                    SELECT 
+                        p.id AS id, p.product_name AS product_name, p.product_url_id AS product_url_id, pu.url_id AS url_id 
+                    FROM product_urls pu 
+                    INNER JOIN products p on p.product_url_id = pu.id
+                    WHERE pu.url_id = ${LUXURY_ID} ORDER BY p.id DESC LIMIT 1;
+                    `);
+
+            let urlsToScrap: any = [];
+
+            if (data) {
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE id > ${data.product_url_id} AND url_id = ${LUXURY_ID};
+                `);
+            } else {
+                urlsToScrap = await AppDataSource.query(`
+                    SELECT id, url
+                    FROM product_urls
+                    WHERE url_id = ${LUXURY_ID};
+                `)
+            }
+
+            let browserInstance = await startBrowser();
+            const products = await LuxuryProductDetailsScraperObject.findLuxuryProductDetails({ urlsToScrap: urlsToScrap.splice(0, 10), browserInstance });
+            const insertedData = await productRepository.insert(products);
+
+            sendResponse(res, 200, "scrapped successfully", insertedData);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

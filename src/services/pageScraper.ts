@@ -103,7 +103,7 @@ export const scraperObject = {
             urls.map((item: any) => {
                 allUrls.push(...item);
             });
-            
+
             allUrls = [...new Set(allUrls)].filter((i: any) => i);;
             await browser.close();
             return allUrls;
@@ -112,23 +112,38 @@ export const scraperObject = {
         }
     },
 
-    async theRealScraper(browser: any) {
+    async theRealScraper(browser: any, url: any) {
+        let scrappedUrls = [];
         try {
-            let url = "https://www.therealreal.com/designers";
             let page = await browser.newPage();
             console.log(`Navigating to ${url}...`);
             await page.goto(url);
-            await page.waitForSelector(".designer-directory");
-            let urls = await page.$$eval('ul > li', (links: any) => {
-                links = links.map((el: any) => el.querySelector('a').href);
-                return links;
-            });
-            urls = [...new Set(urls)];
+
+            await page.waitForSelector(".designer-directory__content > .designer-alphabet");
+            await page.waitForSelector("div.design-directory__columns");
+
+            for (let i =1; i < 8; i++) {
+                
+                    let urls = await page.evaluate(() => {
+                        const anchors = Array.from(document.querySelectorAll(".designer-directory__designer > a"));
+                        return anchors.map((anchor: any) => {
+                            return anchor.href;
+                        }).filter(i => i);
+                    });
+                    page.click(`.designer-directory__nav-bar > ul > li.designer-directory__nav-bar-text:nth-child(${i})`),
+                    page.waitForNavigation({ waitUntil: 'networkidle2' });
+                    
+                    scrappedUrls.push(...urls);
+
+            }
+            console.log("scrappedUrls", scrappedUrls.length)
 
             await browser.close();
-            return urls;
+            scrappedUrls = [...new Set(scrappedUrls)];
+            return scrappedUrls;
         } catch (error) {
             console.log(error)
         }
-    },
+    }
+
 };

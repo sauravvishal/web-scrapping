@@ -30,6 +30,7 @@ export class Controller {
      * test - to check if server is running
      * @param req 
      * @param res 
+     * @returns 
      */
     test = async (req: Request, res: Response): Promise<any> => {
         try {
@@ -209,6 +210,27 @@ export class Controller {
     }
 
     /**
+     * getTherealProductsUrls: to get all products urls of The Real Real
+     * @param req 
+     * @param res 
+     * @returns 
+     */
+    getTherealProductsUrls = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT * FROM product_urls WHERE url_id = ${REAL_ID};
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    /**
      * getVestaireProductsDetails - to get all products details of Vestaire
      * @param req 
      * @param res 
@@ -345,6 +367,43 @@ export class Controller {
                 INNER JOIN product_urls pu ON p.product_url_id = pu.id
                 INNER JOIN urls u ON u.id = pu.url_id
                 WHERE pu.url_id = ${LUXURY_ID};
+            `);
+
+            if (!products.length) return sendResponse(res, 404, "No data found.", null);
+
+            sendResponse(res, 200, "scrapped successfully", { total_count: products.length, products });
+        } catch (error) {
+            console.log(error)
+            sendResponse(res, 403, "Something went wrong.", null);
+        }
+    }
+
+    /**
+     * getTheRealProductsDetails: to get all products details of The Real Real
+     * @param req 
+     * @param res 
+     * @returns 
+     */
+    getTherealProductsDetails = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const products = await AppDataSource.query(`
+                SELECT 
+                    p.id AS product_id,
+                    p.product_name,
+                    p.brand_name,
+                    p.current_price,
+                    p.original_price,
+                    p.description,
+                    p.condition,
+                    p.size,
+                    p.is_sold,
+                    pu.id AS product_url_id,
+                    pu.url AS product_url,
+                    u.website_name
+                FROM products p
+                INNER JOIN product_urls pu ON p.product_url_id = pu.id
+                INNER JOIN urls u ON u.id = pu.url_id
+                WHERE pu.url_id = ${REAL_ID};
             `);
 
             if (!products.length) return sendResponse(res, 404, "No data found.", null);
@@ -961,6 +1020,12 @@ export class Controller {
         }
     }
 
+    /**
+     * theRealProductUrlScrap: to scrap urls of products from luxury from brands urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     theRealProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
@@ -1008,6 +1073,12 @@ export class Controller {
         }
     }
 
+    /**
+     * theRealProductDetailsScrap: to scrap details of products from luxury from products urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     theRealProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const productRepository = AppDataSource.getRepository(Products);

@@ -26,6 +26,11 @@ export class Controller {
     service: any;
     constructor() { }
 
+    /**
+     * test - to check if server is running
+     * @param req 
+     * @param res 
+     */
     test = async (req: Request, res: Response): Promise<any> => {
         try {
             sendResponse(res, 200, "Everything is OK !!!!", null);
@@ -34,6 +39,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getAllUrls - to get brand urls of each websites
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getAllUrls = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
@@ -52,6 +63,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getAllProductUrlCount - to get product_url_count of each websites
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getAllProductUrlCount = async (req: Request, res: Response): Promise<any> => {
         try {
             const data = await AppDataSource.query(`
@@ -71,10 +88,31 @@ export class Controller {
         }
     }
 
+    /**
+     * getAllProductUrlCount - to get all products of each websites
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getAllProducts = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
-                SELECT * FROM products;
+                SELECT
+                    p.id AS product_id,
+                    p.product_name,
+                    p.brand_name,
+                    p.current_price,
+                    p.original_price,
+                    p.description,
+                    p.condition,
+                    p.size,
+                    p.is_sold,
+                    pu.id AS product_url_id,
+                    pu.url AS product_url,
+                    u.website_name
+                FROM products p
+                INNER JOIN product_urls pu ON p.product_url_id = pu.id
+                INNER JOIN urls u ON u.id = pu.url_id;
             `);
 
             if (!products.length) return sendResponse(res, 404, "No data found.", null);
@@ -86,6 +124,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getVestaireProductsUrls - to get all products urls of Vestaire
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getVestaireProductsUrls = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
@@ -101,6 +145,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getLampooProductsUrls - to get all products urls of Lampoo
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getLampooProductsUrls = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
@@ -116,6 +166,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getThredupProductsUrls - to get all products urls of Thredup
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getThredupProductsUrls = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
@@ -131,6 +187,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getLuxuryProductsUrls - to get all products urls of Luxury
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getLuxuryProductsUrls = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
@@ -146,6 +208,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getVestaireProductsDetails - to get all products details of Vestaire
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getVestaireProductsDetails = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
@@ -177,6 +245,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getLampooProductsDetails - to get all products details of Lampoo
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getLampooProductsDetails = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
@@ -208,6 +282,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getThredupProductsDetails - to get all products details of Thredup
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getThredupProductsDetails = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
@@ -239,6 +319,12 @@ export class Controller {
         }
     }
 
+    /**
+     * getLuxuryProductsDetails - to get all products details of Luxury
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     getLuxuryProductsDetails = async (req: Request, res: Response): Promise<any> => {
         try {
             const products = await AppDataSource.query(`
@@ -270,6 +356,12 @@ export class Controller {
         }
     }
 
+    /**
+     * vestialScrap - to scrap vestial brand urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     vestialScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             let browserInstance = await startBrowser();
@@ -286,6 +378,12 @@ export class Controller {
         }
     }
 
+    /**
+     * thredupScrap - to scrap thredup brand urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     thredupScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             let browserInstance = await startBrowser();
@@ -323,6 +421,12 @@ export class Controller {
         }
     }
 
+    /**
+     * lampooScrap - to scrap lampoo brand urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     lampooScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             let browserInstance = await startBrowser();
@@ -340,6 +444,12 @@ export class Controller {
         }
     }
 
+    /**
+     * luxuryScrap - to scrap luxury brand urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     luxuryScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             let browserInstance = await startBrowser();
@@ -357,30 +467,42 @@ export class Controller {
         }
     }
 
+    /**
+     * theRealScrap - to scrap theReal brand urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     theRealScrap = async (req: Request, res: Response): Promise<any> => {
         try {
-          let browserInstance = await startBrowser();
-          let urls = [
-            "https://www.therealreal.com/designers/women"
-          ];
-          let theRealUrls: any = [];
-          for (let url of urls) {
-            const scrappedUrls = await scraperObject.theRealScraper(browserInstance, url) || [];
-            theRealUrls.push(...scrappedUrls);
-            console.log("======", scrappedUrls.length, "======")
-          }
-          await browserInstance?.close();
-          console.log("controller===", theRealUrls)
-          const url = new Urls();
-          url.website_name = 'https://www.therealreal.com';
-          url.urls = theRealUrls;
-          //const savedUrls = await AppDataSource.manager.save(url);
-          return sendResponse(res, 200, "scrapped successfully", theRealUrls);
+            let browserInstance = await startBrowser();
+            let urls = [
+                "https://www.therealreal.com/designers/women"
+            ];
+            let theRealUrls: any = [];
+            for (let url of urls) {
+                const scrappedUrls = await scraperObject.theRealScraper(browserInstance, url) || [];
+                theRealUrls.push(...scrappedUrls);
+                console.log("======", scrappedUrls.length, "======")
+            }
+            await browserInstance?.close();
+            console.log("controller===", theRealUrls)
+            const url = new Urls();
+            url.website_name = 'https://www.therealreal.com';
+            url.urls = theRealUrls;
+            //const savedUrls = await AppDataSource.manager.save(url);
+            return sendResponse(res, 200, "scrapped successfully", theRealUrls);
         } catch (error) {
-          sendResponse(res, 403, "Something went wrong.", null);
+            sendResponse(res, 403, "Something went wrong.", null);
         }
-      }
+    }
 
+    /**
+     * vestaireProductUrlScrap - to scrap urls of products from vestaire from brands urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     vestaireProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
@@ -430,6 +552,12 @@ export class Controller {
         }
     }
 
+    /**
+     * vestaireProductDetailsScrap - to scrap details of products from vestaire from products urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     vestaireProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const productRepository = AppDataSource.getRepository(Products);
@@ -478,6 +606,12 @@ export class Controller {
         }
     }
 
+    /**
+     * lampooProductUrlScrap - to scrap urls of products from lampoo from brands urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     lampooProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
@@ -532,6 +666,12 @@ export class Controller {
         }
     }
 
+    /**
+    * lampooProductDetailsScrap - to scrap details of products from lampoo from products urls
+    * @param req 
+    * @param res 
+    * @returns 
+    */
     lampooProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const productRepository = AppDataSource.getRepository(Products);
@@ -577,11 +717,17 @@ export class Controller {
 
             sendResponse(res, 200, "scrapped successfully.", resArr);
         } catch (error) {
-            console.log({error});
+            console.log({ error });
             sendResponse(res, 403, "Something went wrong.", null);
         }
     }
 
+    /**
+     * thredupProductUrlScrap - to scrap urls of products from luxury from brands urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     thredupProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
@@ -621,7 +767,7 @@ export class Controller {
             });
 
             if (!product.length) return sendResponse(res, 400, "Something went wrong. No url scrapped.", null);
-            
+
             const dbArr: any = [], resArr: any = [];
             while (product.length) {
                 dbArr.push(product.splice(0, 10000));
@@ -639,6 +785,12 @@ export class Controller {
         }
     }
 
+    /**
+    * thredupProductDetailsScrap - to scrap details of products from thredup from products urls
+    * @param req 
+    * @param res 
+    * @returns 
+    */
     thredupProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const productRepository = AppDataSource.getRepository(Products);
@@ -688,6 +840,12 @@ export class Controller {
         }
     }
 
+    /**
+     * luxuryProductUrlScrap - to scrap urls of products from luxury from brands urls
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     luxuryProductUrlScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const urlRepository = AppDataSource.getRepository(Urls);
@@ -743,6 +901,12 @@ export class Controller {
         }
     }
 
+    /**
+    * luxuryProductDetailsScrap - to scrap details of products from luxury from products urls
+    * @param req 
+    * @param res 
+    * @returns 
+    */
     luxuryProductDetailsScrap = async (req: Request, res: Response): Promise<any> => {
         try {
             const productRepository = AppDataSource.getRepository(Products);
@@ -832,7 +996,7 @@ export class Controller {
             //     resArr.push(...insertedData?.identifiers);
             // }
 
-            return sendResponse(res, 200, "scrapped successfully.",products);
+            return sendResponse(res, 200, "scrapped successfully.", products);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }
@@ -867,7 +1031,7 @@ export class Controller {
                 `)
             }
             let browserInstance = await startBrowser();
-            const products = await  theRealProductDetailsScraperObject.findTheRealProductDetails({ urlsToScrap: urlsToScrap.splice(0, 1), browserInstance });
+            const products = await theRealProductDetailsScraperObject.findTheRealProductDetails({ urlsToScrap: urlsToScrap.splice(0, 1), browserInstance });
             const insertedData = await productRepository.insert(products);
 
             sendResponse(res, 200, "scrapped successfully", insertedData?.identifiers);

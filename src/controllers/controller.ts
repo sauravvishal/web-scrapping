@@ -475,23 +475,29 @@ export class Controller {
      */
     theRealScrap = async (req: Request, res: Response): Promise<any> => {
         try {
-            let browserInstance = await startBrowser();
             let urls = [
-                "https://www.therealreal.com/designers/women"
+                "https://www.therealreal.com/designers/women",
+                "https://www.therealreal.com/designers/men",
+                "https://www.therealreal.com/designers/fine-jewelry",
+                "https://www.therealreal.com/designers/watches",
+                "https://www.therealreal.com/designers/art",
+                "https://www.therealreal.com/designers/home",
+                "https://www.therealreal.com/designers/kids"
             ];
             let theRealUrls: any = [];
             for (let url of urls) {
+                let browserInstance = await startBrowser();
                 const scrappedUrls = await scraperObject.theRealScraper(browserInstance, url) || [];
                 theRealUrls.push(...scrappedUrls);
-                console.log("======", scrappedUrls.length, "======")
+                console.log("======", scrappedUrls.length, theRealUrls.length, "======")
+                await browserInstance?.close();
             }
-            await browserInstance?.close();
-            console.log("controller===", theRealUrls)
+            theRealUrls = [...new Set(theRealUrls)];
             const url = new Urls();
             url.website_name = 'https://www.therealreal.com';
             url.urls = theRealUrls;
-            //const savedUrls = await AppDataSource.manager.save(url);
-            return sendResponse(res, 200, "scrapped successfully", theRealUrls);
+            const savedUrls = await AppDataSource.manager.save(url);
+            return sendResponse(res, 200, "scrapped successfully", savedUrls);
         } catch (error) {
             sendResponse(res, 403, "Something went wrong.", null);
         }

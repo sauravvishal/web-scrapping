@@ -22,11 +22,13 @@ class MainRouter {
         this.router.get("/scrap/get-lampoo-products-urls", this.controller.getLampooProductsUrls);
         this.router.get("/scrap/get-thredup-products-urls", this.controller.getThredupProductsUrls);
         this.router.get("/scrap/get-luxury-products-urls", this.controller.getLuxuryProductsUrls);
+        this.router.get("/scrap/get-thereal-products-urls", this.controller.getTherealProductsUrls);
 
         this.router.get("/scrap/get-vestaire-products-details", this.controller.getVestaireProductsDetails);
         this.router.get("/scrap/get-lampoo-products-details", this.controller.getLampooProductsDetails);
         this.router.get("/scrap/get-thredup-products-details", this.controller.getThredupProductsDetails);
         this.router.get("/scrap/get-luxury-products-details", this.controller.getLuxuryProductsDetails);
+        this.router.get("/scrap/get-thereal-products-details", this.controller.getTherealProductsDetails);
 
         // post-requests
         this.router.post("/scrap/vestaire", this.controller.vestialScrap);

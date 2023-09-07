@@ -36,15 +36,17 @@ class MainRouter {
         this.router.post("/scrap/luxury", this.controller.luxuryScrap); 
         this.router.post("/scrap/lampoo", this.controller.lampooScrap);
         this.router.post("/scrap/thereal", this.controller.theRealScrap);
+
         this.router.post("/scrap/vestaire-products-urls", this.controller.vestaireProductUrlScrap);
-        this.router.post("/scrap/vestaire-products-details", this.controller.vestaireProductDetailsScrap);
         this.router.post("/scrap/lampoo-products-urls", this.controller.lampooProductUrlScrap);
-        this.router.post("/scrap/lampoo-products-details", this.controller.lampooProductDetailsScrap);
         this.router.post("/scrap/thredup-products-urls", this.controller.thredupProductUrlScrap);
-        this.router.post("/scrap/thredup-products-details", this.controller.thredupProductDetailsScrap);
-        this.router.post("/scrap/luxury-products-urls", this.controller.luxuryProductUrlScrap);
-        this.router.post("/scrap/luxury-products-details", this.controller.luxuryProductDetailsScrap);
         this.router.post("/scrap/thereal-products-urls", this.controller.theRealProductUrlScrap);
+        this.router.post("/scrap/luxury-products-urls", this.controller.luxuryProductUrlScrap);
+
+        this.router.post("/scrap/vestaire-products-details", this.controller.vestaireProductDetailsScrap);
+        this.router.post("/scrap/lampoo-products-details", this.controller.lampooProductDetailsScrap);
+        this.router.post("/scrap/thredup-products-details", this.controller.thredupProductDetailsScrap);
+        this.router.post("/scrap/luxury-products-details", this.controller.luxuryProductDetailsScrap);
         this.router.post("/scrap/thereal-products-details", this.controller.theRealProductDetailsScrap);
         
         this.router.use('*', function (req: Request, res: Response) {

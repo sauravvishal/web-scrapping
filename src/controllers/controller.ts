@@ -425,6 +425,8 @@ export class Controller {
         try {
             let browserInstance = await startBrowser();
             const vestiaireUrls = await scraperObject.vestiaireScraper(browserInstance);
+            if (!vestiaireUrls.length) return sendResponse(res, 404, "No urls found.", null);
+
             const url = new Urls();
             url.website_name = 'https://us.vestiairecollective.com/';
             url.urls = vestiaireUrls;
@@ -467,7 +469,7 @@ export class Controller {
                 console.log("======", scrappedUrls.length, "======")
             }
             await browserInstance?.close();
-            console.log("controller===", thredupUrls.length)
+            if (!thredupUrls.length) return sendResponse(res, 404, "No urls found.", null);
             const url = new Urls();
             url.website_name = 'https://www.thredup.com';
             url.urls = thredupUrls;
@@ -490,6 +492,7 @@ export class Controller {
         try {
             let browserInstance = await startBrowser();
             const lampooUrls = await scraperObject.lampooScraper(browserInstance);
+            if (!lampooUrls.length) return sendResponse(res, 404, "No urls found.", null);
 
             const url = new Urls();
             url.website_name = 'https://www.lampoo.com';
@@ -513,6 +516,8 @@ export class Controller {
         try {
             let browserInstance = await startBrowser();
             const luxuryUrls = await scraperObject.luxuryScraper(browserInstance);
+
+            if (!luxuryUrls.length) return sendResponse(res, 404, "No urls found.", null);
 
             const url = new Urls();
             url.website_name = 'https://theluxurycloset.com';
@@ -551,6 +556,8 @@ export class Controller {
                 console.log("======", scrappedUrls.length, theRealUrls.length, "======")
                 await browserInstance?.close();
             }
+            if (!theRealUrls.length) return sendResponse(res, 404, "No urls found.", null);
+
             theRealUrls = [...new Set(theRealUrls)];
             const url = new Urls();
             url.website_name = 'https://www.therealreal.com';
